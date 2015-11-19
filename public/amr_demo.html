@@ -25,14 +25,16 @@
 	var interferingContours_layer;
 	var fmContoursNow;
 	var fmContours_layer;
+	var amStation_layer;
 
-	#var host = 'http://localhost:6479';
+	//var host = 'http://localhost:6479';
 	var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
 	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 	var geo_space = "amr";
 
-	contour_style = {color: "#000", opacity: 1.0,  fillOpacity: 0.0, fillColor: "#eee", weight: 2};
-	contour_style_fm = {color: "#00f", opacity: 1.0,  fillOpacity: 0.5, fillColor: "#aaf", weight: 2};
+	var contour_style = {color: "#000", opacity: 1.0,  fillOpacity: 0.0, fillColor: "#eee", weight: 2};
+	var contour_style_fm = {color: "#00f", opacity: 1.0,  fillOpacity: 0.5, fillColor: "#aaf", weight: 2};
+	var contour_style_am_station = {color: "#f00", opacity: 1.0,  fillOpacity: 0.0, fillColor: "#aaf", weight: 2};
 	
 	function createMap() {
  
@@ -41,7 +43,7 @@
              attributionControl: true,
              maxZoom: 19
          })
-         .setView([45, -93], 3);
+         .setView([45, -93], 4);
 		 
 	 baseStreet = L.mapbox.tileLayer('fcc.k74ed5ge').addTo(map);
      baseSatellite = L.mapbox.tileLayer('fcc.k74d7n0g');
@@ -128,7 +130,7 @@ var data_23 = process_rows(data.data_23);
 
 var available_co_1 = [];
 for (var i = 0; i <301; i++) {
-if (i < 211) {
+if (i < 221) {
 available_co_1.push(0);
 }
 else {
@@ -284,8 +286,18 @@ var url = host + "/interferingContours/" + uuid;
 	
 }
 	
-	
-	
+function amrProcess(lat, lon) {
+var url = host + "/amrProcess/" + lat + "/" + lon;
+
+	$.ajax(url, {
+        type: "GET",
+        url: url,
+        dataType: "json",
+        success: function(data){
+			processData(data);
+		}
+	});
+}
 	
 	
 function setupListener() {
@@ -301,14 +313,35 @@ alert("Please enter lat/lon");
 return;
 }
 
-var url = "http://localhost:6479/amrProcess/" + lat + "/" + lon;
+amrProcess(lat, lon);
+});
+
+
+$("#am-callsign-btn").on("click", function(e) {
+e.preventDefault();
+
+var callsign = $('#am-callsign').val().toUpperCase();
+
+if (callsign == "") {
+alert("Please call sign");
+return;
+}
+
+var url = host + "/amContour/" + callsign;
 
 	$.ajax(url, {
         type: "GET",
         url: url,
         dataType: "json",
         success: function(data){
-			processData(data);
+			if (data.features.length > 0) {
+				amStation_layer =  L.geoJson(data, {
+			style: contour_style_am_station
+		}).addTo(map);
+		map.fitBounds(amStation_layer.getBounds());
+			
+			
+			}
 		}
 	});
 
@@ -337,7 +370,11 @@ $(document).ready(function() {
 </div>
 </td>
 <td valign="top">
+Show AM station contour:<br>
+Call sign:<input id="am-callsign"> <button id="am-callsign-btn">go</button>
+<p>
 
+Define a point for FM translator:<br>
 Latitude:<input id=lat><br><br> Longitude: <input id=lon><p>
 <button id=latlon-btn>Submit</button> <p>
 
