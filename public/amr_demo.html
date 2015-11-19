@@ -8,6 +8,7 @@
     <title>FCC AMR</title>
     <style>
 		.click-callsign {cursor: pointer, color: #aaaaff}
+		#text-display {font-size: 12px}
 		
 	</style>
 
@@ -66,8 +67,17 @@
 	 ).addTo(map);
 
 	  
+	 map.on("click", function(e) {
+		clickedMap(e);
+	});
+	  
 	}
 	
+function clickedMap(e) {
+	var lat = Math.round(1000000*e.latlng.lat)/1000000.0;
+	var lon = Math.round(1000000*e.latlng.lng)/1000000.0;
+	amrProcess(lat, lon);
+}
 	
 function process_rows(rows) {
 var arr1 = [];
@@ -91,9 +101,9 @@ return arr2;
 function makeText(data) {
 
 console.log(data);
-var str1 = "<table cellpadding=1><tr><td>Channel</td><td>Call Sign</td><td>Class</td><td>Overlap Area</td><td>Contour Area</td></tr><tr style=\"height: 1px; background-color: #000\"></tr>\n";
+var str1 = "<table cellpadding=1><tr><td>Channel</td><td>Call Sign</td><td>Class</td><td>Overlap Area</td><td>Contour Area</td><td></td></tr>\n";
 for (var i = 0; i < data.length; i++) {
-str1 += "<tr><td>" + data[i].channel + "</td><td><span class=\"click-callsign\" style=\"cursor: pointer; color: #aaaaff\">" + data[i].callsign + "</span></td><td>" + data[i].class + "</td><td>" + data[i].area + "</td><td>" + data[i].area1 + "</td></tr>\n";
+str1 += "<tr><td>" + data[i].channel + "</td><td>" + data[i].callsign + "</td><td>" + data[i].class + "</td><td>" + data[i].area + "</td><td>" + data[i].area1 + "</td><td><span class=\"click-callsign-class\" value=\"" + data[i].callsign + "," + data[i].class + "\" style=\"cursor: pointer; color: #aaaaff\" >Show Contour(" + data[i].callsign + "," + data[i].class + ")</span></td></tr>\n";
 }
 str1 += "</table>";
 
@@ -221,20 +231,24 @@ console.log(text_all);
 
 $("#text-display").html(text_all);
 
-$('.click-callsign').on('click', function(e) {
 
-clickCallsign(e);
-
+$('.click-callsign-class').on('click', function(e) {
+clickCallsignClass(e);
 });
 
 }
 
-function clickCallsign(e) {
-e.preventDefault();
-var callsign = e.target.innerHTML;
-var url = host + "/fmContours/" + callsign;
 
-alert(url);
+function clickCallsignClass(e) {
+e.preventDefault();
+var callsign_class = e.target.innerHTML;
+callsign_class = callsign_class.replace(/^.*\(/, '');
+callsign_class = callsign_class.replace(/\).*$/, '');
+var callsign = callsign_class.split(",")[0];
+var class0 = callsign_class.split(",")[1];
+
+var url = host + "/fmContours/" + callsign + "/" + class0;
+
 
 	$.ajax(url, {
         type: "GET",
@@ -269,7 +283,20 @@ var url = host + "/interferingContours/" + uuid;
         dataType: "json",
         success: function(data){
 		
+		if (data.features.length == 0) {
+			alert("No contours available");
+			return;
+		}
+		
 		inerferingContoursNow = data;
+		
+		if (map.hasLayer(interferingContours_layer)) {
+			map.removeLayer(interferingContours_layer);
+		}
+				
+		if (map.hasLayer(fmContours_layer)) {
+			map.removeLayer(fmContours_layer);
+		}
 		
 		interferingContours_layer = L.geoJson(data, {
 			style: contour_style
@@ -287,7 +314,12 @@ var url = host + "/interferingContours/" + uuid;
 }
 	
 function amrProcess(lat, lon) {
-var url = host + "/amrProcess/" + lat + "/" + lon;
+
+	$('#lat').val(lat);
+	$('#lon').val(lon);
+
+	showLoader();
+	var url = host + "/amrProcess/" + lat + "/" + lon;
 
 	$.ajax(url, {
         type: "GET",
@@ -295,9 +327,20 @@ var url = host + "/amrProcess/" + lat + "/" + lon;
         dataType: "json",
         success: function(data){
 			processData(data);
+			hideLoader();
 		}
 	});
 }
+	
+
+function showLoader() {
+$('#ajax-loader').css({"top": "200px", "left": "300px"});
+}
+
+function hideLoader() {
+$('#ajax-loader').css({"top": "-200px", "left": "-300px"});
+}
+
 	
 	
 function setupListener() {
@@ -335,12 +378,17 @@ var url = host + "/amContour/" + callsign;
         dataType: "json",
         success: function(data){
 			if (data.features.length > 0) {
+				if (map.hasLayer(amStation_layer)) {
+					map.removeLayer(amStation_layer);
+				}
+			
 				amStation_layer =  L.geoJson(data, {
-			style: contour_style_am_station
-		}).addTo(map);
-		map.fitBounds(amStation_layer.getBounds());
-			
-			
+				style: contour_style_am_station
+				}).addTo(map);
+				map.fitBounds(amStation_layer.getBounds());
+				amStation_layer.on("click", function(e) {
+					clickedMap(e);
+				});
 			}
 		}
 	});
@@ -363,6 +411,7 @@ $(document).ready(function() {
 
 <body>
 <table>
+<tr height=40 bgcolor=#999999><td colspan=2 align=center><span style="font-size: 25px; font-weight: heavy; color: #fff">FCC AMR Channel Finder Tool</span> </td></tr>
 <tr>
 <td valign="top">
 <div>
@@ -375,8 +424,10 @@ Call sign:<input id="am-callsign"> <button id="am-callsign-btn">go</button>
 <p>
 
 Define a point for FM translator:<br>
-Latitude:<input id=lat><br><br> Longitude: <input id=lon><p>
+Latitude:<input id=lat><br> Longitude: <input id=lon><p>
 <button id=latlon-btn>Submit</button> <p>
+
+Or click anywhere on the map (and wait for 5 seconds)<p>
 
 <div id="text-display" style="border: solid 1px #999"></div>
 
@@ -389,7 +440,7 @@ Latitude:<input id=lat><br><br> Longitude: <input id=lon><p>
 
 
 
-
+<img id="ajax-loader" src="img/ajax-loader.gif" style="position: absolute; top: -200px; left: -300px">
 
 </body>
 

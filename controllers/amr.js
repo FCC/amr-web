@@ -266,7 +266,8 @@ function interferingContours(req, res) {
 
 function fmContours(req, res) {
 	var callsign = req.params.callsign;
-	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=callsign='" + callsign + "'+AND+service+IN+('FM','FL','FX')";
+	var class0 = req.params.class;
+	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=callsign='" + callsign + "'+AND+service+IN+('FM','FL','FX')+AND+class='" + class0 + "'";
 
 	var http = require('http');
 	http.get(url, function(res1) {
@@ -286,7 +287,7 @@ function fmContours(req, res) {
 function amContour(req, res) {
 	var callsign = req.params.callsign;
 	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":am_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=callsign='" + callsign + "'+AND+contour_level=0.25";
-
+console.log(url);
 	var http = require('http');
 	http.get(url, function(res1) {
 		var data = "";

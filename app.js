@@ -111,6 +111,10 @@ app.get('/fmContours/:callsign', function(req, res){
 amr.fmContours(req, res);
 });
 
+app.get('/fmContours/:callsign/:class', function(req, res){
+amr.fmContours(req, res);
+});
+
 app.get('/amContour/:callsign', function(req, res){
 amr.amContour(req, res);
 });
