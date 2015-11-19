@@ -282,7 +282,26 @@ function fmContours(req, res) {
 		});
 }
 
+
+function amContour(req, res) {
+	var callsign = req.params.callsign;
+	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":am_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=callsign='" + callsign + "'+AND+contour_level=0.25";
+
+	var http = require('http');
+	http.get(url, function(res1) {
+		var data = "";
+		res1.on('data', function (chunk) {
+			data += chunk;
+		});
+		res1.on("end", function() {
+			res.send(data);
+		});
+	}).on("error", function() {
+			//res.send('error');
+		});
+}
+
 module.exports.amrProcess = amrProcess;
 module.exports.interferingContours = interferingContours;
 module.exports.fmContours = fmContours;
-
+module.exports.amContour = amContour;
