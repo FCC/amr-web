@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FCC AMR</title>
+    <style>
+		.click-callsign {cursor: pointer, color: #aaaaff}
+		#text-display {font-size: 12px}
+		
+	</style>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<link href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
+	<script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
+	<link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
+	<script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.1.0/leaflet-pip.min.js"></script>
+<script>
+
+	var map;
+	var contour_json;
+	var station_marker;
+	var interferingContoursNow;
+	var interferingContours_layer;
+	var fmContoursNow;
+	var fmContours_layer;
+	var amStation_layer;
+
+	//var host = 'http://localhost:6479';
+	var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
+	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
+	var geo_space = "amr";
+
+	var contour_style = {color: "#000", opacity: 1.0,  fillOpacity: 0.0, fillColor: "#eee", weight: 2};
+	var contour_style_fm = {color: "#00f", opacity: 1.0,  fillOpacity: 0.5, fillColor: "#aaf", weight: 2};
+	var contour_style_am_station = {color: "#f00", opacity: 1.0,  fillOpacity: 0.0, fillColor: "#aaf", weight: 2};
+	
+	function createMap() {
+ 
+     L.mapbox.accessToken = 'pk.eyJ1IjoiY29tcHV0ZWNoIiwiYSI6InMyblMya3cifQ.P8yppesHki5qMyxTc2CNLg';
+     map = L.mapbox.map('map', 'fcc.k74ed5ge', {
+             attributionControl: true,
+             maxZoom: 19
+         })
+         .setView([45, -93], 4);
+		 
+	 baseStreet = L.mapbox.tileLayer('fcc.k74ed5ge').addTo(map);
+     baseSatellite = L.mapbox.tileLayer('fcc.k74d7n0g');
+     baseTerrain = L.mapbox.tileLayer('fcc.k74cm3ol');
+		 
+	 L.control.scale({
+         position: 'bottomright'
+     }).addTo(map);
+
+     geocoder = L.mapbox.geocoder('mapbox.places-v1');
+
+     layerControl = new L.Control.Layers({
+         'Street': baseStreet.addTo(map),
+         'Satellite': baseSatellite,
+         'Terrain': baseTerrain
+     }, {
+     }, {
+		position: 'topleft'
+	 }
+	 ).addTo(map);
+
+	  
+	 map.on("click", function(e) {
+		clickedMap(e);
+	});
+	  
+	}
+	
+function clickedMap(e) {
+	var lat = Math.round(1000000*e.latlng.lat)/1000000.0;
+	var lon = Math.round(1000000*e.latlng.lng)/1000000.0;
+	amrProcess(lat, lon);
+}
+	
+function process_rows(rows) {
+var arr1 = [];
+for (var i = 0; i < rows.length; i++) {
+arr1.push(rows[i].channel + "," + rows[i].callsign + "," + rows[i].class + "," + rows[i].area + "," + rows[i].area1);
+}
+arr1.sort();
+arr2 = [];
+var items, entry;
+for (i=0; i < arr1.length; i++) {
+items = arr1[i].split(",");
+items[3] = Math.round(items[3]*10)/10;
+items[4] = Math.round(items[4]*10)/10;
+entry = {"channel": items[0], "callsign": items[1], "class": items[2], "area": items[3], "area1": items[4]};
+arr2.push(entry);
+}
+
+return arr2;
+}
+
+function makeText(data) {
+
+console.log(data);
+var str1 = "<table cellpadding=1><tr><td>Channel</td><td>Call Sign</td><td>Class</td><td>Overlap Area</td><td>Contour Area</td><td></td></tr>\n";
+for (var i = 0; i < data.length; i++) {
+str1 += "<tr><td>" + data[i].channel + "</td><td>" + data[i].callsign + "</td><td>" + data[i].class + "</td><td>" + data[i].area + "</td><td>" + data[i].area1 + "</td><td><span class=\"click-callsign-class\" value=\"" + data[i].callsign + "," + data[i].class + "\" style=\"cursor: pointer; color: #aaaaff\" >Show Contour(" + data[i].callsign + "," + data[i].class + ")</span></td></tr>\n";
+}
+str1 += "</table>";
+
+return str1;
+}
+
+function getChannels(data) {
+var arr1 = [];
+for (var i = 0; i < data.length; i++) {
+arr1.push(parseInt(data[i].channel));
+}
+
+arr1.sort();
+
+return arr1;
+}
+
+function contains(arr, a) {
+for (var i = 0; i < arr.length; i++) {
+if (a == arr[i]) {return true;}
+}
+return false;
+}
+
+function processData(data) {
+console.log(data);
+var uuid = data.uuid;
+
+getInterferingContours(uuid);
+
+var data_co = process_rows(data.data_co);
+var data_1 = process_rows(data.data_1);
+var data_23 = process_rows(data.data_23);
+
+var available_co_1 = [];
+for (var i = 0; i <301; i++) {
+if (i < 221) {
+available_co_1.push(0);
+}
+else {
+available_co_1.push(1);
+}
+}
+
+var channel_co = getChannels(data_co);
+var channel_1 = getChannels(data_1);
+var channel_23 = getChannels(data_23);
+
+//remove co-channel
+for (i=0; i<channel_co.length; i++) {
+available_co_1[channel_co[i]] = 0;
+}
+
+console.log(available_co_1);
+
+//remove 1st adjacent channel
+for (i=0; i<channel_1.length; i++) {
+available_co_1[channel_1[i]-1] = 0;
+if (channel_1[i]+1 <=300) {
+available_co_1[channel_1[i]+1] = 0;
+}
+}
+
+console.log("ava 1");
+console.log(available_co_1);
+
+
+
+var available_all = available_co_1.slice();
+//remove 2nd/3rd adjacent channel
+for (i=0; i<channel_23.length; i++) {
+available_all[channel_23[i]-3] = 0;
+available_all[channel_23[i]-2] = 0;
+if (channel_23[i]+3 <=300) {
+available_all[channel_23[i]+3] = 0;
+}
+if (channel_23[i]+2 <=300) {
+available_all[channel_23[i]+2] = 0;
+}
+}
+
+
+console.log("c 1");
+console.log(channel_co);
+console.log(channel_1);
+console.log(channel_23);
+
+console.log(available_co_1);
+console.log(available_all);
+
+var available_all_str = "";
+var available_all_arr = [];
+for (var i = 0; i < available_all.length; i++) {
+	if (available_all[i] == 1) {
+		available_all_str += i + ", ";
+		available_all_arr.push(i);
+	}
+}
+available_all_str = available_all_str.replace(/, +$/, "");
+
+var available_co_1_str = "";
+var available_co_1_arr = [];
+for (var i = 0; i < available_co_1.length; i++) {
+	if (available_co_1[i] == 1) {
+		available_co_1_str += i + ", ";
+		available_co_1_arr.push(i);
+	}
+}
+available_co_1_str = available_co_1_str.replace(/, +$/, "");
+
+console.log(available_all_str);
+console.log(available_co_1_str);
+
+
+var text_co = makeText(data_co);
+var text_1 = makeText(data_1);
+var text_23 = makeText(data_23);
+
+var text_all = "Co-Channel Results:<br>" + text_co + "<p>1st Adjacent Channel Results:<br>" + text_1 +
+ "<p>2nd/3rd Adjacent Channel Results:<br>" + text_23 + "<p>Final Available Channels (" + 
+ available_all_arr.length + "):<br>" + available_all_str + "<p>Available Channels with 2/3 Waiver(" + 
+ available_co_1_arr.length + "):<br>" + available_co_1_str + "<p>";
+
+console.log(text_all);
+
+$("#text-display").html(text_all);
+
+
+$('.click-callsign-class').on('click', function(e) {
+clickCallsignClass(e);
+});
+
+}
+
+
+function clickCallsignClass(e) {
+e.preventDefault();
+var callsign_class = e.target.innerHTML;
+callsign_class = callsign_class.replace(/^.*\(/, '');
+callsign_class = callsign_class.replace(/\).*$/, '');
+var callsign = callsign_class.split(",")[0];
+var class0 = callsign_class.split(",")[1];
+
+var url = host + "/fmContours/" + callsign + "/" + class0;
+
+
+	$.ajax(url, {
+        type: "GET",
+        url: url,
+        dataType: "json",
+        success: function(data){
+	
+		fmContoursNow = data;
+	
+		if (map.hasLayer(fmContours_layer)) {
+			map.removeLayer(fmContours_layer);
+		}
+		
+		fmContours_layer = L.geoJson(data, {
+			style: contour_style_fm
+		}).addTo(map);
+		
+		map.fitBounds(fmContours_layer.getBounds());
+		
+		}
+		
+	});
+
+}
+	
+function getInterferingContours(uuid) {
+var url = host + "/interferingContours/" + uuid;
+
+	$.ajax(url, {
+        type: "GET",
+        url: url,
+        dataType: "json",
+        success: function(data){
+		
+		if (data.features.length == 0) {
+			alert("No contours available");
+			return;
+		}
+		
+		inerferingContoursNow = data;
+		
+		if (map.hasLayer(interferingContours_layer)) {
+			map.removeLayer(interferingContours_layer);
+		}
+				
+		if (map.hasLayer(fmContours_layer)) {
+			map.removeLayer(fmContours_layer);
+		}
+		
+		interferingContours_layer = L.geoJson(data, {
+			style: contour_style
+		}).addTo(map);
+		
+		map.fitBounds(interferingContours_layer.getBounds());
+		
+		}
+		
+	});
+
+	
+	
+	
+}
+	
+function amrProcess(lat, lon) {
+
+	$('#lat').val(lat);
+	$('#lon').val(lon);
+
+	showLoader();
+	var url = host + "/amrProcess/" + lat + "/" + lon;
+
+	$.ajax(url, {
+        type: "GET",
+        url: url,
+        dataType: "json",
+        success: function(data){
+			processData(data);
+			hideLoader();
+		}
+	});
+}
+	
+
+function showLoader() {
+$('#ajax-loader').css({"top": "200px", "left": "300px"});
+}
+
+function hideLoader() {
+$('#ajax-loader').css({"top": "-200px", "left": "-300px"});
+}
+
+	
+	
+function setupListener() {
+
+$("#latlon-btn").on("click", function(e) {
+e.preventDefault();
+
+var lat = $('#lat').val();
+var lon = $('#lon').val();
+
+if (lat == "" || lon == "") {
+alert("Please enter lat/lon");
+return;
+}
+
+amrProcess(lat, lon);
+});
+
+
+$("#am-callsign-btn").on("click", function(e) {
+e.preventDefault();
+
+var callsign = $('#am-callsign').val().toUpperCase();
+
+if (callsign == "") {
+alert("Please call sign");
+return;
+}
+
+var url = host + "/amContour/" + callsign;
+
+	$.ajax(url, {
+        type: "GET",
+        url: url,
+        dataType: "json",
+        success: function(data){
+			if (data.features.length > 0) {
+				if (map.hasLayer(amStation_layer)) {
+					map.removeLayer(amStation_layer);
+				}
+			
+				amStation_layer =  L.geoJson(data, {
+				style: contour_style_am_station
+				}).addTo(map);
+				map.fitBounds(amStation_layer.getBounds());
+				amStation_layer.on("click", function(e) {
+					clickedMap(e);
+				});
+			}
+		}
+	});
+
+});
+
+
+
+}
+
+
+$(document).ready(function() {
+	createMap();
+	setupListener();
+});
+
+
+</script>
+</head>
+
+<body>
+<table>
+<tr height=40 bgcolor=#999999><td colspan=2 align=center><span style="font-size: 25px; font-weight: heavy; color: #fff">FCC AMR Channel Finder Tool</span> </td></tr>
+<tr>
+<td valign="top">
+<div>
+<div id="map" style="width: 700px; height: 700px; vertical-align: top">
+</div>
+</td>
+<td valign="top">
+Show AM station contour:<br>
+Call sign:<input id="am-callsign"> <button id="am-callsign-btn">go</button>
+<p>
+
+Define a point for FM translator:<br>
+Latitude:<input id=lat><br> Longitude: <input id=lon><p>
+<button id=latlon-btn>Submit</button> <p>
+
+Or click anywhere on the map (and wait for 5 seconds)<p>
+
+<div id="text-display" style="border: solid 1px #999"></div>
+
+
+</td>
+</tr></table>
+
+
+
+
+
+
+<img id="ajax-loader" src="img/ajax-loader.gif" style="position: absolute; top: -200px; left: -300px">
+
+</body>
+
+</html>
