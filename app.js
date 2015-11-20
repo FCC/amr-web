@@ -99,6 +99,10 @@ app.param('ext', function(req, res, next, ext) {
 	}
 });
 
+app.get('/', function(req, res){
+  res.sendfile('./public/index.html');
+});
+
 app.get('/amrProcess/:lat/:lon', function(req, res){
 amr.amrProcess(req, res);
 });
