@@ -251,7 +251,10 @@ clickCallsignClass(e);
 var available_all_text = makeAvailableTable(available_all);
 var available_co_1_text = makeAvailableTable(available_co_1);
 
-var text = "<table width=100%><tr><td align=center width=50%>" + "Available Channels (Co-Channel, 1st, and 2nd/3rd) [" + available_all_arr.length + "]<br>" + available_all_text + "</td><td align=center width=50%>" + "Available Channels (Co-Channel and 1st only) [" + available_co_1_arr.length + "]<br>" + available_co_1_text + "</td></tr></table>";
+available_all_str = available_all_str.replace(",", ", ");
+available_co_1_str = available_co_1_str.replace(",", ", ");
+
+var text = "<table width=100%><tr><td align=center width=50% valign=top>" + "Available Channels (Co-Channel, 1st, and 2nd/3rd) [" + available_all_arr.length + "]<br>" + available_all_text + "<br>Available Channel List:<br> " + available_all_str +  "</td><td align=center width=50% valign=top>" + "Available Channels (Co-Channel and 1st only) [" + available_co_1_arr.length + "]<br>" + available_co_1_text + "<br>Available Channel List:<br> " + available_co_1_str +  "</td></tr></table>";
 
 $('#available-table-dispay').html(text);
 
@@ -472,7 +475,7 @@ $(document).ready(function() {
 <table>
 <tr height=40 bgcolor=#999999><td colspan=2 align=center><span style="font-size: 25px; font-weight: heavy; color: #fff">FCC AMR Channel Finder Tool</span> </td></tr>
 <tr>
-<td valign="top">
+<td valign="top" width=700>
 <div>
 <div id="map" style="width: 700px; height: 700px; vertical-align: top">
 </div>
