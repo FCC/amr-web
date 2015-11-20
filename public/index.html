@@ -36,11 +36,11 @@
 	var amStation_layer;
 	var cursorX;
 	var cursorY;
-	var clickX;
-	var clickY;
+	var clickX = 330;
+	var clickY = 400;
 
-	//var host = 'http://localhost:6479';
-	var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
+	var host = 'http://localhost:6479';
+	//var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
 	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 	var geo_space = "amr";
 
@@ -254,7 +254,12 @@ var available_co_1_text = makeAvailableTable(available_co_1);
 available_all_str = available_all_str.replace(",", ", ");
 available_co_1_str = available_co_1_str.replace(",", ", ");
 
-var text = "<table width=100%><tr><td align=center width=50% valign=top>" + "Available Channels (Co-Channel, 1st, and 2nd/3rd) [" + available_all_arr.length + "]<br>" + available_all_text + "<br>Available Channel List:<br> " + available_all_str +  "</td><td align=center width=50% valign=top>" + "Available Channels (Co-Channel and 1st only) [" + available_co_1_arr.length + "]<br>" + available_co_1_text + "<br>Available Channel List:<br> " + available_co_1_str +  "</td></tr></table>";
+var text = "<table width=100%><tr><td align=center width=50% valign=top>" +
+ "Available Channels (Co-Channel, 1st, and 2nd/3rd) [" + 
+ available_all_arr.length + "]<br>" + available_all_text + "<br>Available Channel List:<br> " +
+ available_all_str +  "</td><td align=center width=50% valign=top>" + 
+ "Available Channels (Co-Channel and 1st only) [" + available_co_1_arr.length +
+ "]<br>" + available_co_1_text + "<br>Available Channel List:<br> " + available_co_1_str +  "</td></tr></table>";
 
 $('#available-table-dispay').html(text);
 
