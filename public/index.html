@@ -9,6 +9,13 @@
     <style>
 		.click-callsign {cursor: pointer, color: #aaaaff}
 		#text-display {font-size: 12px}
+		.available-table {border: solid 1px #000; corner-radius: 5px}
+		.available-table td {height: 20px}
+		.no {color: #aaa; text-decoration:line-through}
+		.yes {color: #005500; border: solid 1px #aaa}
+		#map {cursor: default}
+		#text-display {font-size: 11px;}
+		body {font-size: 12px; font-family: arial; font-color: #ddd; cursor: default}
 		
 	</style>
 
@@ -27,8 +34,13 @@
 	var fmContoursNow;
 	var fmContours_layer;
 	var amStation_layer;
+	var cursorX;
+	var cursorY;
+	var clickX;
+	var clickY;
 
-	var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
+	var host = 'http://localhost:6479';
+	//var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
 	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 	var geo_space = "amr";
 
@@ -73,6 +85,8 @@
 	}
 	
 function clickedMap(e) {
+	clickX = cursorX;
+	clickY = cursorY;
 	var lat = Math.round(1000000*e.latlng.lat)/1000000.0;
 	var lon = Math.round(1000000*e.latlng.lng)/1000000.0;
 	amrProcess(lat, lon);
@@ -222,19 +236,51 @@ var text_1 = makeText(data_1);
 var text_23 = makeText(data_23);
 
 var text_all = "Co-Channel Results:<br>" + text_co + "<p>1st Adjacent Channel Results:<br>" + text_1 +
- "<p>2nd/3rd Adjacent Channel Results:<br>" + text_23 + "<p>Final Available Channels (" + 
- available_all_arr.length + "):<br>" + available_all_str + "<p>Available Channels with 2/3 Waiver(" + 
- available_co_1_arr.length + "):<br>" + available_co_1_str + "<p>";
+ "<p>2nd/3rd Adjacent Channel Results:<br>" + text_23 + "<p>";
 
 console.log(text_all);
 
 $("#text-display").html(text_all);
 
-
 $('.click-callsign-class').on('click', function(e) {
 clickCallsignClass(e);
 });
 
+
+
+var available_all_text = makeAvailableTable(available_all);
+var available_co_1_text = makeAvailableTable(available_co_1);
+
+var text = "<table width=100%><tr><td align=center width=50%>" + "Available Channels (Co-Channel, 1st, and 2nd/3rd) [" + available_all_arr.length + "]<br>" + available_all_text + "</td><td align=center width=50%>" + "Available Channels (Co-Channel and 1st only) [" + available_co_1_arr.length + "]<br>" + available_co_1_text + "</td></tr></table>";
+
+$('#available-table-dispay').html(text);
+
+
+
+}
+
+
+function makeAvailableTable(a) {
+
+var text = "<table class=\"available-table\" width=100%>";
+var index;
+for (var row = 0; row < 8; row++) {
+text += "<tr>";
+for (var col=0; col<10; col++) {
+index = row*10 + col + 221;
+if (a[index] == 1) {
+	class0 = "yes";
+}
+else {
+	class0 = "no";
+}
+text += "<td align=center class=\"" + class0 + "\">" + index + "</td>"
+}
+text += "<tr>";
+}
+text += "</table>";
+
+return text;
 }
 
 
@@ -266,6 +312,11 @@ var url = host + "/fmContours/" + callsign + "/" + class0;
 		}).addTo(map);
 		
 		map.fitBounds(fmContours_layer.getBounds());
+		
+		//make FM contours clickable
+		fmContours_layer.on("click", function(e) {
+			clickedMap(e);
+		});
 		
 		}
 		
@@ -303,6 +354,11 @@ var url = host + "/interferingContours/" + uuid;
 		
 		map.fitBounds(interferingContours_layer.getBounds());
 		
+		//make interfering contours clickable
+		interferingContours_layer.on("click", function(e) {
+			clickedMap(e);
+		});
+
 		}
 		
 	});
@@ -333,7 +389,7 @@ function amrProcess(lat, lon) {
 	
 
 function showLoader() {
-$('#ajax-loader').css({"top": "200px", "left": "300px"});
+$('#ajax-loader').css({"top": clickY-16, "left": clickX-16});
 }
 
 function hideLoader() {
@@ -394,6 +450,10 @@ var url = host + "/amContour/" + callsign;
 
 });
 
+$(document).on("mousemove", function(e) {
+cursorX = e.pageX;
+cursorY = e.pageY;
+});
 
 
 }
@@ -416,6 +476,8 @@ $(document).ready(function() {
 <div>
 <div id="map" style="width: 700px; height: 700px; vertical-align: top">
 </div>
+<p>
+<div id="available-table-dispay"></div>
 </td>
 <td valign="top">
 Show AM station contour:<br>
@@ -428,7 +490,7 @@ Latitude:<input id=lat><br> Longitude: <input id=lon><p>
 
 Or click anywhere on the map (and wait for 5 seconds)<p>
 
-<div id="text-display" style="border: solid 1px #999"></div>
+<div id="text-display" style="height: 512px; border: solid 1px #999; overflow: auto">Data Display Area</div>
 
 
 </td>
