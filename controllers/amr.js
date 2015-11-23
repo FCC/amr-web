@@ -164,17 +164,17 @@ function amrProcess(req, res) {
 		
 			//co-channel
 			var data_co = [];
-			q = "SELECT a.callsign, a.filenumber, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
+			q = "SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
 				FROM amr.fm_contours a, amr.interfering_contours b \
-				WHERE a.callsign <> 'NEW' and a.channel > 220 and a.service in ('FM', 'FL', 'FX') and a.class in ('A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1') and b.uuid = '" + uuid0 + "' and b.dbu = 40 and ST_Intersects(a.geom, b.geom) \
+				WHERE a.channel > 220 and a.service in ('FM', 'FL', 'FX') and a.class in ('A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1') and b.uuid = '" + uuid0 + "' and b.dbu = 40 and ST_Intersects(a.geom, b.geom) \
 				union \
-				SELECT a.callsign, a.filenumber, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
+				SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
 				FROM amr.fm_contours a, amr.interfering_contours b \
-				WHERE a.callsign <> 'NEW' and a.channel > 220 and a.service in ('FM', 'FL', 'FX') and a.class = 'B' and b.uuid = '" + uuid0 + "' and b.dbu = 37 and ST_Intersects(a.geom, b.geom) \
+				WHERE a.channel > 220 and a.service in ('FM', 'FL', 'FX') and a.class = 'B1' and b.uuid = '" + uuid0 + "' and b.dbu = 37 and ST_Intersects(a.geom, b.geom) \
 				union \
-				SELECT a.callsign, a.filenumber, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
+				SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
 				FROM amr.fm_contours a, amr.interfering_contours b \
-				WHERE a.callsign <> 'NEW' and a.channel > 220 and a.service in ('FM', 'FL', 'FX') and a.class = 'B1' and b.uuid = '" + uuid0 + "' and b.dbu = 34 and ST_Intersects(a.geom, b.geom)";
+				WHERE a.channel > 220 and a.service in ('FM', 'FL', 'FX') and a.class = 'B' and b.uuid = '" + uuid0 + "' and b.dbu = 34 and ST_Intersects(a.geom, b.geom)";
 			
 			var query_co = client.query(q);
 			query_co.on('row', function(row) {
@@ -183,17 +183,17 @@ function amrProcess(req, res) {
 			query_co.on('end', function() {
 				console.log("co done");
 				data_1 = [];
-				q = "SELECT a.callsign, a.filenumber, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
+				q = "SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
 					FROM amr.fm_contours a, amr.interfering_contours b \
-					WHERE a.callsign <> 'NEW' and a.channel > 219 and a.service in ('FM', 'FL', 'FX') and a.class in ('A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1') and b.uuid = '" + uuid0 + "' and b.dbu = 54 and ST_Intersects(a.geom, b.geom) \
+					WHERE a.channel > 219 and a.service in ('FM', 'FL', 'FX') and a.class in ('A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1') and b.uuid = '" + uuid0 + "' and b.dbu = 54 and ST_Intersects(a.geom, b.geom) \
 					union \
-					SELECT a.callsign, a.filenumber, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
+					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
 					FROM amr.fm_contours a, amr.interfering_contours b \
-					WHERE a.callsign <> 'NEW' and a.channel > 219 and a.service in ('FM', 'FL', 'FX') and a.class = 'B' and b.uuid = '" + uuid0 + "' and b.dbu = 51 and ST_Intersects(a.geom, b.geom) \
+					WHERE a.channel > 219 and a.service in ('FM', 'FL', 'FX') and a.class = 'B1' and b.uuid = '" + uuid0 + "' and b.dbu = 51 and ST_Intersects(a.geom, b.geom) \
 					union \
-					SELECT a.callsign, a.filenumber, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
+					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
 					FROM amr.fm_contours a, amr.interfering_contours b \
-					WHERE a.callsign <> 'NEW' and a.channel > 219 and a.service in ('FM', 'FL', 'FX') and a.class = 'B1' and b.uuid = '" + uuid0 + "' and b.dbu = 48 and ST_Intersects(a.geom, b.geom)";
+					WHERE a.channel > 219 and a.service in ('FM', 'FL', 'FX') and a.class = 'B' and b.uuid = '" + uuid0 + "' and b.dbu = 48 and ST_Intersects(a.geom, b.geom)";
 				var query_1 = client.query(q);
 				query_1.on('row', function(row) {
 					data_1.push(row);
@@ -201,17 +201,17 @@ function amrProcess(req, res) {
 				query_1.on('end', function() {
 					console.log("1st done");
 					data_23 = [];
-					q = "SELECT a.callsign, a.filenumber, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
+					q = "SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
 						FROM amr.fm_contours a, amr.interfering_contours b \
-						WHERE a.callsign <> 'NEW' and a.channel > 217 and a.service in ('FM', 'FL', 'FX') and a.class in ('A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1') and b.uuid = '" + uuid0 + "' and b.dbu = 100 and ST_Intersects(a.geom, b.geom) \
+						WHERE a.channel > 217 and a.service in ('FM', 'FL', 'FX') and a.class in ('A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1') and b.uuid = '" + uuid0 + "' and b.dbu = 100 and ST_Intersects(a.geom, b.geom) \
 						union \
-						SELECT a.callsign, a.filenumber,  a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
+						SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
 						FROM amr.fm_contours a, amr.interfering_contours b \
-						WHERE a.callsign <> 'NEW' and a.channel > 217 and a.service in ('FM', 'FL', 'FX') and a.class = 'B' and b.uuid = '" + uuid0 + "' and b.dbu = 97 and ST_Intersects(a.geom, b.geom) \
+						WHERE a.channel > 217 and a.service in ('FM', 'FL', 'FX') and a.class = 'B1' and b.uuid = '" + uuid0 + "' and b.dbu = 97 and ST_Intersects(a.geom, b.geom) \
 						union \
-						SELECT a.callsign, a.filenumber, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
+						SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
 						FROM amr.fm_contours a, amr.interfering_contours b \
-						WHERE a.callsign <> 'NEW' and a.channel > 217 and a.service in ('FM', 'FL', 'FX') and a.class = 'B1' and b.uuid = '" + uuid0 + "' and b.dbu = 94 and ST_Intersects(a.geom, b.geom)";
+						WHERE a.channel > 217 and a.service in ('FM', 'FL', 'FX') and a.class = 'B' and b.uuid = '" + uuid0 + "' and b.dbu = 94 and ST_Intersects(a.geom, b.geom)";
 					var query_23 = client.query(q);
 					query_23.on('row', function(row) {
 						data_23.push(row);
@@ -269,9 +269,10 @@ function interferingContours(req, res) {
 }
 
 function fmContours(req, res) {
-	var callsign = req.params.callsign;
+	var facility_id = req.params.facility_id;
+	var filenumber = req.params.filenumber;
 	var class0 = req.params.class;
-	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=callsign='" + callsign + "'+AND+service+IN+('FM','FL','FX')+AND+class='" + class0 + "'";
+	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'" + "+AND+service+IN+('FM','FL','FX')";
 
 	var http = require('http');
 	http.get(url, function(res1) {

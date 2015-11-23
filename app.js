@@ -115,7 +115,7 @@ app.get('/fmContours/:callsign', function(req, res){
 amr.fmContours(req, res);
 });
 
-app.get('/fmContours/:callsign/:class', function(req, res){
+app.get('/fmContours/:facility_id/:filenumber/:class', function(req, res){
 amr.fmContours(req, res);
 });
 
