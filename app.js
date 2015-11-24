@@ -123,7 +123,9 @@ app.get('/amContour/:callsign', function(req, res){
 amr.amContour(req, res);
 });
 
-
+app.get('/fmForAvailableChannel/:channel/:uuid0', function(req, res){
+amr.fmForAvailableChannel(req, res);
+});
 
 
 

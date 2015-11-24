@@ -310,7 +310,78 @@ function amContour(req, res) {
 		});
 }
 
+function fmForAvailableChannel(req, res) {
+	var channel = parseInt(req.params.channel);
+	var uuid0 = req.params.uuid0;
+	var ch1 = channel - 3;
+	if (ch1 < 218) {
+		ch1 = 218;
+	}
+	var ch2 = channel + 3;
+		if (ch1 > 300) {
+		ch1 = 300;
+	}
+	var configEnv = require('../config/env.json');
+	
+	var NODE_ENV = process.env.NODE_ENV;
+	var PG_DB = configEnv[NODE_ENV].PG_DB;
+		
+	var pg = require('pg');
+	var client = new pg.Client(PG_DB);
+	
+	client.connect();
+
+	q = "WITH tmp_table as \
+		(SELECT ST_Buffer(geom::geography, 50000)::geometry as geom1 \
+		FROM amr.interfering_contours WHERE uuid = '" + uuid0 + "' and dbu = 34) \
+		SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel \
+		FROM amr.fm_contours a, tmp_table b \
+		WHERE a.channel > " + ch1 + " and a.channel < " + ch2 + " and a.service in ('FM', 'FL', 'FX')  and ST_Intersects(a.geom, b.geom1) \
+		ORDER BY channel";
+	
+	var query = client.query(q);
+	var data = [];
+	console.log(data);
+	query.on('row', function(row) {
+		data.push(row);
+	});
+	query.on('end', function() {
+		var fac_file_tuple = "";
+		for (var i = 0; i < data.length; i++) {
+			fac_file_tuple += "'" + data[i].facility_id + "_" + data[i].filenumber  + "',";
+		}
+		
+		fac_file_tuple = "(" + fac_file_tuple.replace(/,$/, "") + ")";
+		
+		var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=500&outputFormat=application%2Fjson&cql_filter=fac_file+IN+" + fac_file_tuple + "+AND+service+IN+('FM','FL','FX')";
+		var http = require('http');
+		http.get(url, function(res1) {
+			var data = "";
+			res1.on('data', function (chunk) {
+				data += chunk;
+			});
+			res1.on("end", function() {
+				res.send(data);
+			});
+		}).on("error", function() {
+				//console.log('error');
+			});
+
+
+		
+	
+	});
+
+	
+}
+
+
+
+
 module.exports.amrProcess = amrProcess;
 module.exports.interferingContours = interferingContours;
 module.exports.fmContours = fmContours;
 module.exports.amContour = amContour;
+module.exports.fmForAvailableChannel = fmForAvailableChannel;
+
+
