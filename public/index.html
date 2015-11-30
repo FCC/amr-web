@@ -151,6 +151,19 @@ return false;
 }
 
 function processData(data) {
+
+var lat = data.location.latlng.lat;
+var lon = data.location.latlng.lng;
+var insideUs = data.location.isInsideUs;
+if (!insideUs) {
+var text = "ERROR: This location (" + lat + ", " + lon + ") is outside of US"
+$('#info_panel').html(text);
+alert(text);
+return;
+
+}
+
+
 amProcessDataNow = data;
 var uuid = data.uuid;
 uuid4InterferringContour = uuid;
@@ -160,6 +173,15 @@ getInterferingContours(uuid);
 var data_co = process_rows(data.data_co);
 var data_1 = process_rows(data.data_1);
 var data_23 = process_rows(data.data_23);
+var data_co_usa = process_rows(data.data_co_usa);
+var data_1_usa = process_rows(data.data_1_usa);
+var data_23_usa = process_rows(data.data_23_usa);
+var data_co_mex = process_rows(data.data_co_mex);
+var data_1_mex = process_rows(data.data_1_mex);
+var data_23_mex = process_rows(data.data_23_mex);
+var intersectsCanada = data.intersectsCanada;
+var intersectsMexico = data.intersectsMexico;
+var intersectsCaribbean = data.intersectsCaribbean;
 
 var available_co_1 = [];
 for (var i = 0; i <301; i++) {
@@ -263,7 +285,17 @@ for (var c = 221; c < 301; c++) {
 fm_info_co = getFMInfo_co(c, data_co);
 fm_info_1 = getFMInfo_1(c, data_1);
 fm_info_23 = getFMInfo_23(c, data_23);
-channelInfo[c] = {"fm_info_co": fm_info_co, "fm_info_1": fm_info_1, "fm_info_23": fm_info_23};
+fm_info_co_usa = getFMInfo_co(c, data_co_usa);
+fm_info_1_usa = getFMInfo_1(c, data_1_usa);
+fm_info_23_usa = getFMInfo_23(c, data_23_usa);
+fm_info_co_mex = getFMInfo_co(c, data_co_mex);
+fm_info_1_mex = getFMInfo_1(c, data_1_mex);
+fm_info_23_mex = getFMInfo_23(c, data_23_mex);
+
+channelInfo[c] = {"fm_info_co": fm_info_co, "fm_info_1": fm_info_1, "fm_info_23": fm_info_23,
+					"fm_info_co_usa": fm_info_co_usa, "fm_info_1_usa": fm_info_1_usa, "fm_info_23_usa": fm_info_23_usa,
+					"fm_info_co_mex": fm_info_co_mex, "fm_info_1_mex": fm_info_1_mex, "fm_info_23_mex": fm_info_23_mex
+					};
 
 
 }
@@ -272,36 +304,63 @@ channelInfo[c] = {"fm_info_co": fm_info_co, "fm_info_1": fm_info_1, "fm_info_23"
 //make channel list
 var channel_text = "<table class=\"channel-list-table\"><td>Channel</td><td>Co-Channel</td><td>First</td><td>2nd/3rd</td></tr>";
 for (c = 221; c < 301; c++) {
-//co
+//co usa
 text_co = "";
-for (var i = 0; i < channelInfo[c].fm_info_co.length; i++) {
-var facility_id = channelInfo[c].fm_info_co[i].facility_id;
-var filenumber = channelInfo[c].fm_info_co[i].filenumber;
-var class0 = channelInfo[c].fm_info_co[i].class;
-var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":co";
+for (var i = 0; i < channelInfo[c].fm_info_co_usa.length; i++) {
+var facility_id = channelInfo[c].fm_info_co_usa[i].facility_id;
+var filenumber = channelInfo[c].fm_info_co_usa[i].filenumber;
+var class0 = channelInfo[c].fm_info_co_usa[i].class;
+var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":co:usa";
 text_co += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
+}
+
+//co mex
+for (var i = 0; i < channelInfo[c].fm_info_co_mex.length; i++) {
+var facility_id = channelInfo[c].fm_info_co_mex[i].facility_id;
+var filenumber = channelInfo[c].fm_info_co_mex[i].filenumber;
+var class0 = channelInfo[c].fm_info_co_mex[i].class;
+var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":co:mex";
+text_co += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "(mex)</span>, ";
 }
 text_co = text_co.replace(/, $/, "");
 
-//1st
+//1st usa
 text_1 = "";
-for (var i = 0; i < channelInfo[c].fm_info_1.length; i++) {
-var facility_id = channelInfo[c].fm_info_1[i].facility_id;
-var filenumber = channelInfo[c].fm_info_1[i].filenumber;
-var class0 = channelInfo[c].fm_info_1[i].class;
-var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":1";
+for (var i = 0; i < channelInfo[c].fm_info_1_usa.length; i++) {
+var facility_id = channelInfo[c].fm_info_1_usa[i].facility_id;
+var filenumber = channelInfo[c].fm_info_1_usa[i].filenumber;
+var class0 = channelInfo[c].fm_info_1_usa[i].class;
+var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":1:usa";
 text_1 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
+}
+
+//1st mex
+for (var i = 0; i < channelInfo[c].fm_info_1_mex.length; i++) {
+var facility_id = channelInfo[c].fm_info_1_mex[i].facility_id;
+var filenumber = channelInfo[c].fm_info_1_mex[i].filenumber;
+var class0 = channelInfo[c].fm_info_1_mex[i].class;
+var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":1:mex";
+text_1 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "(mex)</span>, ";
 }
 text_1 = text_1.replace(/, $/, "");
 
-//2nd/3rd
+//2nd/3rd usa
 text_23 = "";
-for (var i = 0; i < channelInfo[c].fm_info_23.length; i++) {
-var facility_id = channelInfo[c].fm_info_23[i].facility_id;
-var filenumber = channelInfo[c].fm_info_23[i].filenumber;
-var class0 = channelInfo[c].fm_info_23[i].class;
-var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":23";
+for (var i = 0; i < channelInfo[c].fm_info_23_usa.length; i++) {
+var facility_id = channelInfo[c].fm_info_23_usa[i].facility_id;
+var filenumber = channelInfo[c].fm_info_23_usa[i].filenumber;
+var class0 = channelInfo[c].fm_info_23_usa[i].class;
+var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":23:usa";
 text_23 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
+}
+
+//2nd/3rd mex
+for (var i = 0; i < channelInfo[c].fm_info_23_mex.length; i++) {
+var facility_id = channelInfo[c].fm_info_23_mex[i].facility_id;
+var filenumber = channelInfo[c].fm_info_23_mex[i].filenumber;
+var class0 = channelInfo[c].fm_info_23_mex[i].class;
+var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":23:mex";
+text_23 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "(mex)</span>, ";
 }
 text_23 = text_23.replace(/, $/, "");
 
@@ -329,8 +388,22 @@ $('.yes').on('click', function(e) {
 clickAvailableChannel(e);
 });
 
+//country language
+var country_text = "";
+if (intersectsCanada) {
+	country_text = "The proposed site is close to the US/Canadian common border and the proposed \
+	translator will require Canadian concurrence.  Compliance with the US/Canadian agreement may \
+	further limit the channels available at this location.";
+}
+if (intersectsMexico) {
+	country_text = "The proposed site is within 130 km of the US/Mexican common border and will require Mexican concurrence.";
+}
+if (intersectsCaribbean) {
+	country_text = "The proposed site is in Puerto Rico or the Virgin Islands and will require notification to the \
+	International Telecommunication Union.  Compliance with this process may further limit the channels available at this location.";
+}
 
-
+$('#text-display-country-language').html(country_text);
 
 
 
@@ -421,10 +494,14 @@ var id = e.target.id;
 var channel = id.split(":")[0];
 var facility_id = id.split(":")[1];
 var filenumber = id.split(":")[2];
+if (filenumber == '') {
+	filenumber = 'null';
+}
 var class0 = id.split(":")[3];
 var interferenceType = id.split(":")[4];
 
 var url = host + "/fmContours/" + facility_id + "/" + filenumber + "/" + class0;
+console.log(url);
 
 	$.ajax(url, {
         type: "GET",
@@ -458,7 +535,7 @@ var url = host + "/fmContours/" + facility_id + "/" + filenumber + "/" + class0;
 			else if (class0 == 'B1') {
 				dbus = [37, 51, 97];
 			}
-			else if (contains(['A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1']), class0) {
+			else if (contains(['A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1'], class0)) {
 				dbus = [40, 54, 100];
 			}
 			
@@ -500,10 +577,13 @@ var url = host + "/fmContours/" + facility_id + "/" + filenumber + "/" + class0;
 			}
 			
 			var channel_fm = fmContoursNow.features[0].properties.channel;
+			var country_fm = fmContoursNow.features[0].properties.country;
+			var callsign_fm = fmContoursNow.features[0].properties.callsign;
+			var service_fm = fmContoursNow.features[0].properties.service;
 			
 			var info_text = "Channel " + channel + " is not available because of " + type_str + " interference with the following FM station:<br>";
-			info_text += "<table border=1 cellspacing=0><tr><td>Facility ID</td><td>File Number</td><td>Class</td><td>Channel</td></tr>";
-			info_text += "<tr><td>" + facility_id + "</td><td>" + filenumber + "</td><td>" + class0 + "</td><td>" + channel_fm + "</td></tr></table>";
+			info_text += "<table border=1 cellspacing=0><tr><td>Facility ID</td><td>Call Sign</td><td>File Number</td><td>Service</td><td>Class</td><td>Channel</td><td>Country</td></tr>";
+			info_text += "<tr><td>" + facility_id + "</td><td>" + callsign_fm + "</td><td>" + filenumber + "</td><td>" + service_fm + "</td><td>" + class0 + "</td><td>" + channel_fm + "</td><td>" + country_fm + "</td></tr></table>";
 			
 			
 			$('#info_panel').html(info_text);
@@ -563,8 +643,8 @@ function onEachFeature_nearbyFM(feature, layer) {
 function overNearbyFM(feature, layer) {
 	var p = feature.target.feature.properties;
 	var text = "Channel " + channelClicked + ": Nearby FM stations with &#177;3 channel #<p>";
-	text += "Mouseover Station Info:<table border=1 cellspacing=0><tr><td>Service</td><td>Facility ID</td><td>File Number</td><td>Channel</td><td>Class</td></tr>";
-	text += "<tr><td>" + p.service + "</td><td>" + p.facility_id + "</td><td>" + p.filenumber + "</td><td>" + p.channel + "</td><td>" + p.class + "</td></tr></table>";
+	text += "Mouseover Station Info:<table border=1 cellspacing=0><tr><td>Service</td><td>Call Sign</td><td>Facility ID</td><td>File Number</td><td>Channel</td><td>Class</td></tr>";
+	text += "<tr><td>" + p.service + "</td><td>" + p.callsign + "</td><td>" + p.facility_id + "</td><td>" + p.filenumber + "</td><td>" + p.channel + "</td><td>" + p.class + "</td></tr></table>";
 	$('#info_panel').html(text);
 	feature.setStyle(contour_style);
 	
@@ -581,8 +661,6 @@ function outNearbyFM(feature, layer) {
 
 
 function makeAvailableTable(a) {
-
-console.log(a)
 
 var text = "<table class=\"available-table\" width=100%>";
 var index;
@@ -859,6 +937,8 @@ Latitude:<input id=lat><br> Longitude: <input id=lon><p>
 <button id=latlon-btn>Submit</button> <p>
 
 Or click anywhere on the map (and wait for 5 seconds)<p>
+
+<div id="text-display-country-language" style="border: solid 1px #999; overflow: auto"></div>
 
 <div id="text-display-channel-list" style="height: 512px; border: solid 1px #999; overflow: auto">Data Display Area</div>
 
