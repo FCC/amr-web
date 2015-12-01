@@ -14,6 +14,8 @@
 		.no {color: #aaa; text-decoration:line-through}
 		.yes {color: #4444dd; border: solid 1px #4444dd; cursor: pointer}
 		.yes:hover {text-decoration: underline}
+		.no0 {color: #dddddd; text-decoration:line-through}
+		.yes0 {color: #000000; border: solid 1px #000000}
 		#map {cursor: default}
 		#text-display {font-size: 11px;}
 		.channel-list-table {border: solid 1px #000;}
@@ -105,7 +107,7 @@ function clickedMap(e) {
 function process_rows(rows) {
 var arr1 = [];
 for (var i = 0; i < rows.length; i++) {
-arr1.push(rows[i].channel + "," + rows[i].callsign + "," + rows[i].filenumber + "," + rows[i].facility_id + "," + rows[i].service +  "," + rows[i].class + "," + rows[i].area + "," + rows[i].area1);
+arr1.push(rows[i].channel + "," + rows[i].callsign + "," + rows[i].filenumber + "," + rows[i].facility_id + "," + rows[i].service +  "," + rows[i].class + "," + rows[i].station_lat + "," + rows[i].station_lon + "," + rows[i].uuid +  "," + rows[i].area + "," + rows[i].area1);
 }
 
 arr1.sort();
@@ -113,9 +115,9 @@ arr2 = [];
 var items, entry;
 for (i=0; i < arr1.length; i++) {
 items = arr1[i].split(",");
-items[6] = Math.round(items[6]*10)/10;
-items[7] = Math.round(items[7]*10)/10;
-entry = {"channel": items[0], "callsign": items[1], "filenumber": items[2], "facility_id": items[3], "service": items[4], "class": items[5], "area": items[6], "area1": items[7]};
+items[9] = Math.round(items[6]*10)/10;
+items[10] = Math.round(items[7]*10)/10;
+entry = {"channel": items[0], "callsign": items[1], "filenumber": items[2], "facility_id": items[3], "service": items[4], "class": items[5], "station_lat": items[6], "station_lon": items[7], "uuid": items[8], "area": items[9], "area1": items[10]};
 arr2.push(entry);
 }
 
@@ -150,17 +152,34 @@ if (a == arr[i]) {return true;}
 return false;
 }
 
+function clearAll() {
+	if (map.hasLayer(interferingContours_layer)) {
+		map.removeLayer(interferingContours_layer);
+	}
+	if (map.hasLayer(fmContours_layer)) {
+		map.removeLayer(fmContours_layer);
+	}
+	if (map.hasLayer(amStation_layer)) {
+		map.removeLayer(amStation_layer);
+	}
+	$('#text-display-channel-list').html('');
+	$('#info_panel').html('Info Area');
+
+}
+
 function processData(data) {
+
+clearAll();
 
 var lat = data.location.latlng.lat;
 var lon = data.location.latlng.lng;
 var insideUs = data.location.isInsideUs;
+
 if (!insideUs) {
 var text = "ERROR: This location (" + lat + ", " + lon + ") is outside of US"
 $('#info_panel').html(text);
 alert(text);
 return;
-
 }
 
 
@@ -265,7 +284,7 @@ var text_all = "Co-Channel Results:<br>" + text_co + "<p>1st Adjacent Channel Re
 
 console.log(text_all);
 
-$("#text-display").html(text_all);
+//$("#text-display").html(text_all);
 
 $('.click-facility_id-class').on('click', function(e) {
 clickFacilityIDClass(e);
@@ -301,6 +320,9 @@ channelInfo[c] = {"fm_info_co": fm_info_co, "fm_info_1": fm_info_1, "fm_info_23"
 }
 
 
+
+console.log(channelInfo);
+
 //make channel list
 var channel_text = "<table class=\"channel-list-table\"><td>Channel</td><td>Co-Channel</td><td>First</td><td>2nd/3rd</td></tr>";
 for (c = 221; c < 301; c++) {
@@ -308,19 +330,15 @@ for (c = 221; c < 301; c++) {
 text_co = "";
 for (var i = 0; i < channelInfo[c].fm_info_co_usa.length; i++) {
 var facility_id = channelInfo[c].fm_info_co_usa[i].facility_id;
-var filenumber = channelInfo[c].fm_info_co_usa[i].filenumber;
-var class0 = channelInfo[c].fm_info_co_usa[i].class;
-var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":co:usa";
-text_co += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
+var uuid = channelInfo[c].fm_info_co_usa[i].uuid;
+text_co += "<span id=\"" + uuid + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
 }
 
 //co mex
 for (var i = 0; i < channelInfo[c].fm_info_co_mex.length; i++) {
 var facility_id = channelInfo[c].fm_info_co_mex[i].facility_id;
-var filenumber = channelInfo[c].fm_info_co_mex[i].filenumber;
-var class0 = channelInfo[c].fm_info_co_mex[i].class;
-var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":co:mex";
-text_co += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "(mex)</span>, ";
+var uuid = channelInfo[c].fm_info_co_mex[i].uuid;
+text_co += "<span id=\"" + uuid + "\" class=\"channel-list-span\">" + facility_id + "(mex)</span>, ";
 }
 text_co = text_co.replace(/, $/, "");
 
@@ -328,19 +346,15 @@ text_co = text_co.replace(/, $/, "");
 text_1 = "";
 for (var i = 0; i < channelInfo[c].fm_info_1_usa.length; i++) {
 var facility_id = channelInfo[c].fm_info_1_usa[i].facility_id;
-var filenumber = channelInfo[c].fm_info_1_usa[i].filenumber;
-var class0 = channelInfo[c].fm_info_1_usa[i].class;
-var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":1:usa";
-text_1 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
+var uuid = channelInfo[c].fm_info_1_usa[i].uuid;
+text_1 += "<span id=\"" + uuid + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
 }
 
 //1st mex
 for (var i = 0; i < channelInfo[c].fm_info_1_mex.length; i++) {
 var facility_id = channelInfo[c].fm_info_1_mex[i].facility_id;
-var filenumber = channelInfo[c].fm_info_1_mex[i].filenumber;
-var class0 = channelInfo[c].fm_info_1_mex[i].class;
-var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":1:mex";
-text_1 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "(mex)</span>, ";
+var uuid = channelInfo[c].fm_info_1_mex[i].uuid;
+text_1 += "<span id=\"" + uuid + "\" class=\"channel-list-span\">" + facility_id + "(mex)</span>, ";
 }
 text_1 = text_1.replace(/, $/, "");
 
@@ -348,19 +362,15 @@ text_1 = text_1.replace(/, $/, "");
 text_23 = "";
 for (var i = 0; i < channelInfo[c].fm_info_23_usa.length; i++) {
 var facility_id = channelInfo[c].fm_info_23_usa[i].facility_id;
-var filenumber = channelInfo[c].fm_info_23_usa[i].filenumber;
-var class0 = channelInfo[c].fm_info_23_usa[i].class;
-var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":23:usa";
-text_23 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
+var uuid = channelInfo[c].fm_info_23_usa[i].uuid;
+text_23 += "<span id=\"" + uuid + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
 }
 
 //2nd/3rd mex
 for (var i = 0; i < channelInfo[c].fm_info_23_mex.length; i++) {
 var facility_id = channelInfo[c].fm_info_23_mex[i].facility_id;
-var filenumber = channelInfo[c].fm_info_23_mex[i].filenumber;
-var class0 = channelInfo[c].fm_info_23_mex[i].class;
-var id = c + ":" + facility_id + ":" + filenumber + ":" + class0 + ":23:mex";
-text_23 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "(mex)</span>, ";
+var uuid = channelInfo[c].fm_info_23_mex[i].uuid;
+text_23 += "<span id=\"" + uuid + "\" class=\"channel-list-span\">" + facility_id + "(mex)</span>, ";
 }
 text_23 = text_23.replace(/, $/, "");
 
@@ -405,50 +415,48 @@ if (intersectsCaribbean) {
 
 $('#text-display-country-language').html(country_text);
 
+var availableChannelListAll = [];
+var availableChannelListWaiver = [];
+var index;
+for (index = 221; index < 301; index++) {
+	var sum_all = channelInfo[index].fm_info_co_usa.length + 
+				channelInfo[index].fm_info_co_mex.length + 
+				channelInfo[index].fm_info_1_usa.length + 
+				channelInfo[index].fm_info_1_mex.length + 
+				channelInfo[index].fm_info_23_usa.length + 
+				channelInfo[index].fm_info_23_mex.length;
+
+	var sum_waiver = channelInfo[index].fm_info_co_usa.length + 
+				channelInfo[index].fm_info_co_mex.length + 
+				channelInfo[index].fm_info_1_usa.length + 
+				channelInfo[index].fm_info_1_mex.length +  
+				channelInfo[index].fm_info_23_mex.length;
+	if (sum_all == 0) {
+		availableChannelListAll.push(index);
+	}
+	if (sum_waiver == 0) {
+		availableChannelListWaiver.push(index);
+	}
+}				
+				
+
+var availableTableAll = makeAvailableTable(channelInfo, "all");
+var availableTableWaiver = makeAvailableTable(channelInfo, "waiver");
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var available_all_text = makeAvailableTable(available_all);
-var available_co_1_text = makeAvailableTable(available_co_1);
+var available_all_text = "";
+var available_co_1_text = "";
+//var available_all_text = makeAvailableTable(available_all);
+//var available_co_1_text = makeAvailableTable(available_co_1);
 
 available_all_str = available_all_str.replace(",", ", ");
 available_co_1_str = available_co_1_str.replace(",", ", ");
 
 var text = "<table width=100%><tr><td align=center width=50% valign=top>" +
  "Available Channels (Co-Channel, 1st, and 2nd/3rd) [" + 
- available_all_arr.length + "]<br>" + available_all_text + "<br>Available Channel List:<br> " +
- available_all_str +  "</td><td align=center width=50% valign=top>" + 
- "Available Channels (Co-Channel and 1st only) [" + available_co_1_arr.length +
- "]<br>" + available_co_1_text + "<br>Available Channel List:<br> " + available_co_1_str +  "</td></tr></table>";
+ availableChannelListAll.length + "]<br>" + availableTableAll + "</td><td align=center width=50% valign=top>" + 
+ "Available Channels (Co-Channel and 1st only) [" + availableChannelListWaiver.length +
+ "]<br>" + availableTableWaiver +  "</td></tr></table>";
 
 $('#available-table-dispay').html(text);
 
@@ -490,18 +498,10 @@ function getFMInfo_23(c, data_23) {
 
 function clickFM(e) {
 e.preventDefault();
-var id = e.target.id;
-var channel = id.split(":")[0];
-var facility_id = id.split(":")[1];
-var filenumber = id.split(":")[2];
-if (filenumber == '') {
-	filenumber = 'null';
-}
-var class0 = id.split(":")[3];
-var interferenceType = id.split(":")[4];
+var uuid = e.target.id;
 
-var url = host + "/fmContours/" + facility_id + "/" + filenumber + "/" + class0;
-console.log(url);
+var url = host + "/fmContours/" + uuid;
+
 
 	$.ajax(url, {
         type: "GET",
@@ -527,6 +527,16 @@ console.log(url);
 			});
 			
 			//re-plot interfering contours
+			
+			var class0 = data.features[0].properties.class;
+			var facility_id = data.features[0].properties.facility_id;
+			var filenumber = data.features[0].properties.filenumber;
+			var channel = fmContoursNow.features[0].properties.channel;
+			var country = fmContoursNow.features[0].properties.country;
+			var callsign = fmContoursNow.features[0].properties.callsign;
+			var service = fmContoursNow.features[0].properties.service;
+			var station_lat = fmContoursNow.features[0].properties.station_lat;
+			var station_lon = fmContoursNow.features[0].properties.station_lon;
 
 			if (class0 == 'B') {
 
@@ -576,14 +586,11 @@ console.log(url);
 				type_str = "2nd/3rd-adjacent channel";
 			}
 			
-			var channel_fm = fmContoursNow.features[0].properties.channel;
-			var country_fm = fmContoursNow.features[0].properties.country;
-			var callsign_fm = fmContoursNow.features[0].properties.callsign;
-			var service_fm = fmContoursNow.features[0].properties.service;
+
 			
 			var info_text = "Channel " + channel + " is not available because of " + type_str + " interference with the following FM station:<br>";
-			info_text += "<table border=1 cellspacing=0><tr><td>Facility ID</td><td>Call Sign</td><td>File Number</td><td>Service</td><td>Class</td><td>Channel</td><td>Country</td></tr>";
-			info_text += "<tr><td>" + facility_id + "</td><td>" + callsign_fm + "</td><td>" + filenumber + "</td><td>" + service_fm + "</td><td>" + class0 + "</td><td>" + channel_fm + "</td><td>" + country_fm + "</td></tr></table>";
+			info_text += "<table border=1 cellspacing=0><tr><td>Facility ID</td><td>Call Sign</td><td>File Number</td><td>Service</td><td>Class</td><td>Channel</td><td>Country</td><td>Station Lat</td><td>Station Lon</td></tr>";
+			info_text += "<tr><td>" + facility_id + "</td><td>" + callsign + "</td><td>" + filenumber + "</td><td>" + service + "</td><td>" + class0 + "</td><td>" + channel + "</td><td>" + country + "</td><td>" + station_lat + "</td><td>" + station_lon + "</td></tr></table>";
 			
 			
 			$('#info_panel').html(info_text);
@@ -643,10 +650,13 @@ function onEachFeature_nearbyFM(feature, layer) {
 function overNearbyFM(feature, layer) {
 	var p = feature.target.feature.properties;
 	var text = "Channel " + channelClicked + ": Nearby FM stations with &#177;3 channel #<p>";
-	text += "Mouseover Station Info:<table border=1 cellspacing=0><tr><td>Service</td><td>Call Sign</td><td>Facility ID</td><td>File Number</td><td>Channel</td><td>Class</td></tr>";
-	text += "<tr><td>" + p.service + "</td><td>" + p.callsign + "</td><td>" + p.facility_id + "</td><td>" + p.filenumber + "</td><td>" + p.channel + "</td><td>" + p.class + "</td></tr></table>";
+	text += "Mouseover Station Info:";
+	text += "<table border=1 cellspacing=0><tr><td>Facility ID</td><td>Call Sign</td><td>File Number</td><td>Service</td><td>Class</td><td>Channel</td><td>Country</td><td>Station Lat</td><td>Station Lon</td></tr>";
+	text += "<tr><td>" + p.facility_id + "</td><td>" + p.callsign + "</td><td>" + p.filenumber + "</td><td>" + p.service + "</td><td>" + p.class + "</td><td>" + p.channel + "</td><td>" + p.country + "</td><td>" + p.station_lat + "</td><td>" + p.station_lon + "</td></tr></table>";
+			
+	
 	$('#info_panel').html(text);
-	feature.setStyle(contour_style);
+	//feature.setStyle(contour_style);
 	
 console.log(text);
 }
@@ -683,6 +693,60 @@ text += "</table>";
 
 return text;
 }
+
+function makeAvailableTable(channelInfo, type) {
+
+console.log(typeof(channelInfo))
+console.log(channelInfo[245])
+
+var text = "<table class=\"available-table\" width=100%>";
+var index;
+for (var row = 0; row < 8; row++) {
+text += "<tr>";
+for (var col=0; col<10; col++) {
+index = row*10 + col + 221;
+
+var sum_all = channelInfo[index].fm_info_co_usa.length + 
+				channelInfo[index].fm_info_co_mex.length + 
+				channelInfo[index].fm_info_1_usa.length + 
+				channelInfo[index].fm_info_1_mex.length + 
+				channelInfo[index].fm_info_23_usa.length + 
+				channelInfo[index].fm_info_23_mex.length;
+
+var sum_waiver = channelInfo[index].fm_info_co_usa.length + 
+				channelInfo[index].fm_info_co_mex.length + 
+				channelInfo[index].fm_info_1_usa.length + 
+				channelInfo[index].fm_info_1_mex.length +  
+				channelInfo[index].fm_info_23_mex.length;
+
+if (type == 'all') {				
+	if (sum_all == 0) {
+		class0 = "yes0";
+	}
+	else {
+		class0 = "no0";
+	}
+}
+if (type == 'waiver') {				
+	if (sum_waiver == 0) {
+		class0 = "yes0";
+	}
+	else {
+		class0 = "no0";
+	}
+}
+
+text += "<td align=center><span class=\"" + class0 + "\">" + index + "</span></td>"
+}
+text += "<tr>";
+}
+text += "</table>";
+
+return text;
+}
+
+
+
 
 
 function clickFacilityIDClass(e) {
@@ -920,7 +984,7 @@ $(document).ready(function() {
 <td valign="top" width=700>
 <div>
 <div id="map" style="width: 700px; height: 700px; vertical-align: top">
-<div id="info_panel" style="position: absolute; top: 5px; left: 50px; width: 550px; height: 100px; background-color: #fff; border: solid 1px #000; border-radius: 8px; z-index: 999" >
+<div id="info_panel" style="position: absolute; padding: 5px; top: 5px; left: 50px; width: 625px; background-color: #fff; border: solid 1px #000; border-radius: 8px; z-index: 999" >
 Info Area
 </div>
 </div>
@@ -942,8 +1006,9 @@ Or click anywhere on the map (and wait for 5 seconds)<p>
 
 <div id="text-display-channel-list" style="height: 512px; border: solid 1px #999; overflow: auto">Data Display Area</div>
 
+<!--
 <div id="text-display" style="height: 512px; border: solid 1px #999; overflow: auto">Data Display Area</div>
-
+-->
 
 </td>
 </tr></table>

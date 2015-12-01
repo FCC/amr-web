@@ -111,13 +111,13 @@ app.get('/interferingContours/:id', function(req, res){
 amr.interferingContours(req, res);
 });
 
-app.get('/fmContours/:callsign', function(req, res){
+app.get('/fmContours/:id', function(req, res){
 amr.fmContours(req, res);
 });
 
-app.get('/fmContours/:facility_id/:filenumber/:class', function(req, res){
-amr.fmContours(req, res);
-});
+//app.get('/fmContours/:facility_id/:filenumber/:class/:station_lat/:station_lon', function(req, res){
+//amr.fmContours(req, res);
+//});
 
 app.get('/amContour/:callsign', function(req, res){
 amr.amContour(req, res);
