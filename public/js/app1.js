@@ -1,23 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FCC AMR</title>
-    <style>
-
-		
-	</style>
-
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-	<link href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
-	<script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
-	<link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
-	<script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.1.0/leaflet-pip.min.js"></script>
-	<link href="css/app1.css" rel="stylesheet">
-<script>
 
 	var map;
 	var contour_json;
@@ -38,8 +18,8 @@
 	var clickX = 330;
 	var clickY = 400;
 
-	//var host = 'http://localhost:6479';
-	var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
+	var host = 'http://localhost:6479';
+	//var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
 	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 	var geo_space = "amr";
 
@@ -298,6 +278,8 @@ channel_text += "<tr><td><span class=\"" + channel_class + "\">" + c + "</span><
 channel_text += "</table>";
 
 $("#text-display-channel-list").html(channel_text);
+$("#tabs-3").html(channel_text);
+
 
 $('.channel-list-span').on('click', function(e) {
 clickFM(e);
@@ -358,6 +340,8 @@ var text = "Available Channels w/o 2/3 Waiver) [" +
  "]<br>" + availableTableWaiver;
 
 $('#available-table-dispay').html(text);
+$("#tabs-2").html(text);
+
 
 
 }
@@ -845,6 +829,16 @@ $('#ajax-loader').css({"top": "-200px", "left": "-300px"});
 	
 function setupListener() {
 
+$(function() {
+	$( "#tabs" ).tabs();
+	$( "#tabs" ).tabs({ active: 0 });
+});
+
+ $('.btn-legend').click(function(){ 
+	$(this).hide();
+	$('.legend').show('fast');
+});
+
 $("#latlon-btn").on("click", function(e) {
 e.preventDefault();
 
@@ -907,46 +901,5 @@ cursorY = e.pageY;
 $(document).ready(function() {
 	createMap();
 	setupListener();
+	
 });
-
-
-</script>
-</head>
-
-<body>
-<table width=900 cellspacing=0 cellpadding=0 border=0><tr>
-<td valign="top" width=650>
-<div id="map" style="width: 650px; height: 700px; margin: 0px; padding: 0px; vertical-align: top">
-<div id="info_panel" style="position: absolute; padding: 5px; top: 5px; left: 50px; width: 550px; background-color: #fff; border: solid 1px #000; border-radius: 8px; z-index: 999" >
-Info Area
-</div>
-</div>
-
-</td>
-<td valign="top" width=250>
-Show AM station contour:<br>
-Call sign:<input id="am-callsign"> <button id="am-callsign-btn">go</button>
-<p>
-Define a point for FM translator:<br>
-Latitude:<input id=lat><br> Longitude: <input id=lon><p>
-<button id=latlon-btn>Submit</button> <p>
-
-Or click anywhere on the map (and wait for 5 seconds)<p>
-
-<div id="text-display-country-language" style="border: solid 1px #999; overflow: auto"></div>
-
-<div id="text-display-channel-list" style="height: 512px; border: solid 0px #999; overflow: auto">Data Display Area</div>
-<p>
-<div id="available-table-dispay"></div>
-
-</td>
-</tr></table>
-
-
-
-<img id="ajax-loader" src="img/ajax-loader.gif" style="position: absolute; top: -200px; left: -300px">
-<div id="cursor-tip" style="position: absolute; top: -200px; left: -300px"></div>
-
-</body>
-
-</html>

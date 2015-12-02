@@ -1,0 +1,18 @@
+
+.click-callsign {cursor: pointer, color: #aaaaff}
+#text-display {font-size: 12px}
+.available-table {border: solid 1px #000; border-radius: 5px; font-size: 11px}
+.available-table td {height: 15px}
+.no {color: #999; text-decoration:line-through}
+.yes {color: #4444dd; border: solid 1px #4444dd; cursor: pointer}
+.yes:hover {text-decoration: underline}
+.no0 {color: #dddddd; text-decoration:line-through}
+.yes0 {color: #000000; border: solid 1px #000000}
+#map {cursor: default}
+#text-display {font-size: 11px;}
+.channel-list-table { font-size: 10px; width: 100%; 	border-collapse: collapse; border: solid 1px #000}
+.channel-list-table tr, .channel-list-table td {border: solid 1px #ddd; height: 18px;}
+.channel-list-table tr:first-of-type {border-bottom: solid 1px #000; height: 18px; font-size: 12px; background-color: #eee}
+.channel-list-span {color: #4444dd; cursor: pointer}
+.channel-list-span:hover {text-decoration: underline}
+body {font-size: 12px; font-family: arial; font-color: #ddd; cursor: default; margin: 0px}
