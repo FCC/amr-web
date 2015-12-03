@@ -1,13 +1,14 @@
 
 .click-callsign {cursor: pointer, color: #aaaaff}
 #text-display {font-size: 12px}
-.available-table {border: solid 1px #000; border-radius: 5px; font-size: 11px}
-.available-table td {height: 15px}
-.no {color: #999; text-decoration:line-through}
-.yes {color: #4444dd; border: solid 1px #4444dd; cursor: pointer}
-.yes:hover {text-decoration: underline}
+.available-table {border: solid 1px #000; border-radius: 5px; font-size: 11px; border-collapse: collapse;}
+.available-table td {height: 18px}
+.available-table-header {font-size: 10px;}
+.no {color: #fff; border: solid 1px #000; cursor: pointer; background-color: #aa0000; text-decoration:line-through}
+.yes {color: #fff; border: solid 1px #000; cursor: pointer; background-color: #00aa00}
+.yes:hover, .no:hover {text-decoration: underline}
 .no0 {color: #dddddd; text-decoration:line-through}
-.yes0 {color: #000000; border: solid 1px #000000}
+.yes0 {color: #000000; border: solid 1px #000000;}
 #map {cursor: default}
 #text-display {font-size: 11px;}
 .channel-list-table { font-size: 10px; width: 100%; 	border-collapse: collapse; border: solid 1px #000}
@@ -15,4 +16,6 @@
 .channel-list-table tr:first-of-type {border-bottom: solid 1px #000; height: 18px; font-size: 12px; background-color: #eee}
 .channel-list-span {color: #4444dd; cursor: pointer}
 .channel-list-span:hover {text-decoration: underline}
+#table-latlon-dms {width: 100%; height: 100%; }
+#table-latlon-dms td{vertical-align: center }
 body {font-size: 12px; font-family: arial; font-color: #ddd; cursor: default; margin: 0px}

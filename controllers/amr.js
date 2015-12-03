@@ -391,6 +391,7 @@ if (insideUs) {
 			console.log(asyncTasks);
 			
 			async.parallel(asyncTasks, function(){
+			client.end();
 				console.log('data_co');
 				//console.log(data_co_usa);
 				console.log('data_1');
@@ -406,8 +407,7 @@ if (insideUs) {
 				console.log('data 1 mex');
 				//console.log(data_1_mex)
 				var location = {"latlng": {"lat": lat, "lng": lon}, "isInsideUs": insideUs};
-				var entry = {"uuid": uuid0, "data_co": data_co_usa, "data_1": data_1_usa, "data_23": data_23_usa,
-							"data_co_usa": data_co_usa, "data_1_usa": data_1_usa, "data_23_usa": data_23_usa,
+				var entry = {"uuid": uuid0, "data_co_usa": data_co_usa, "data_1_usa": data_1_usa, "data_23_usa": data_23_usa,
 							"data_co_mex": data_co_mex, "data_1_mex": data_1_mex, "data_23_mex": data_23_mex,
 							"location": location, "intersectsCanada": intersectsCanada, "intersectsMexico": intersectsMexico, "intersectsCaribbean": intersectsCaribbean};
 				res.send(entry);
@@ -447,15 +447,7 @@ query.on('row', function(row) {
 });
 query.on('end', function() {
 var insideUs = data[0].st_intersects;
-
-if (insideUs) {
-
-
-}
-else {
-
-
-}
+client.end();
 
 });
 
@@ -530,7 +522,7 @@ function amContour(req, res) {
 	
 	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + 
 	geo_space + ":am_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=callsign='" +
-	callsign + "'+AND+((class='A'+AND+contour_level=0.025)+OR+(class IN ('B','C','D')+AND+contour_level=0.5))";
+	callsign + "'+AND+((class='A'+AND+contour_level=2)+OR+(class IN ('B','C','D')+AND+contour_level=2))";
 
 	var http = require('http');
 	http.get(url, function(res1) {
@@ -572,7 +564,7 @@ function fmForAvailableChannel(req, res) {
 		FROM amr.interfering_contours WHERE uuid = '" + uuid0 + "' and dbu = 34) \
 		SELECT a.uuid, a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel \
 		FROM amr.fm_contours a, tmp_table b \
-		WHERE a.channel > " + ch1 + " and a.channel < " + ch2 + " and a.service in ('FM', 'FL', 'FX', 'FA', 'FR')  and ST_Intersects(a.geom, b.geom1) \
+		WHERE a.channel >= " + ch1 + " and a.channel <= " + ch2 + " and a.service in ('FM', 'FL', 'FX', 'FA', 'FR')  and ST_Intersects(a.geom, b.geom1) \
 		ORDER BY channel";
 	
 	var query = client.query(q);
@@ -582,6 +574,7 @@ function fmForAvailableChannel(req, res) {
 		data.push(row);
 	});
 	query.on('end', function() {
+		client.end();
 		var fac_file_tuple = "";
 		var uuid_tuple = "";
 		for (var i = 0; i < data.length; i++) {
@@ -614,6 +607,69 @@ function fmForAvailableChannel(req, res) {
 	
 }
 
+function amCallsigns(req, res) {
+var callsign = req.params.callsign;
+var count = req.params.count;
+
+var configEnv = require('../config/env.json');
+
+var NODE_ENV = process.env.NODE_ENV;
+var PG_DB = configEnv[NODE_ENV].PG_DB;
+	
+var pg = require('pg');
+var client = new pg.Client(PG_DB);
+client.connect();
+
+var q = "SELECT distinct callsign FROM amr.am_contours WHERE callsign like '" + callsign + "%' ORDER BY callsign LIMIT " + count;
+console.log(q);
+var query = client.query(q);
+var data = [];
+query.on('row', function(row) {
+	data.push(row);
+});
+query.on('end', function() {
+var callsign_list = [];
+for (var i = 0; i < data.length; i++) {
+	callsign_list.push(data[i].callsign);
+}
+
+res.send(callsign_list);
+client.end();
+});
+
+
+}
+
+
+function allAMCallsignList(req, res) {
+
+var configEnv = require('../config/env.json');
+
+var NODE_ENV = process.env.NODE_ENV;
+var PG_DB = configEnv[NODE_ENV].PG_DB;
+	
+var pg = require('pg');
+var client = new pg.Client(PG_DB);
+client.connect();
+
+var q = "SELECT distinct callsign FROM amr.am_contours ORDER BY callsign";
+
+var query = client.query(q);
+var data = [];
+query.on('row', function(row) {
+	data.push(row);
+});
+query.on('end', function() {
+var callsign_list = [];
+for (var i = 0; i < data.length; i++) {
+	callsign_list.push(data[i].callsign);
+}
+
+res.send(callsign_list);
+client.end();
+});
+
+}
 
 
 
@@ -622,5 +678,6 @@ module.exports.interferingContours = interferingContours;
 module.exports.fmContours = fmContours;
 module.exports.amContour = amContour;
 module.exports.fmForAvailableChannel = fmForAvailableChannel;
-
+module.exports.amCallsigns = amCallsigns;
+module.exports.allAMCallsignList = allAMCallsignList;
 

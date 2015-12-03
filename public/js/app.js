@@ -1363,6 +1363,8 @@ function showNationMapData() {
 	
 	$("#input-search-switch").on('click', 'a', function(e) {
 		var search = $(e.currentTarget).data('value');
+		
+		alert('inp');
 
 		e.preventDefault();	
 
@@ -1789,7 +1791,7 @@ return f;
  
 
  $(document).ready(function() {
-	 $( "#tabs" ).tabs({ active: 1 });
+	 //$( "#tabs" ).tabs({ active: 1 });
      //createMap();
      //setListener();
 	 //loadAllData();

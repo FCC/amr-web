@@ -12,6 +12,7 @@
 	var interferenceType;
 	var uuid4InterferringContour;
 	var channelClicked;
+	var allAMCallsignList = [];
 	
 	var cursorX;
 	var cursorY;
@@ -23,10 +24,10 @@
 	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 	var geo_space = "amr";
 
-	var contour_style = {color: "#f00", opacity: 1.0,  fillOpacity: 0.3, fillColor: "#faa", weight: 2};
+	var contour_style = {color: "#f00", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#faa", weight: 2};
 	var contour_style_highlight = {color: "#ff0", opacity: 1.0,  fillOpacity: 0.75, fillColor: "#aa5555", weight: 3};
 	var contour_style_fm = {color: "#00f", opacity: 1.0,  fillOpacity: 0.5, fillColor: "#aaf", weight: 2};
-	var contour_style_am_station = {color: "#f00", opacity: 1.0,  fillOpacity: 0.0, fillColor: "#aaf", weight: 2};
+	var contour_style_am_station = {color: "#00aa00", opacity: 1.0,  fillOpacity: 0.0, fillColor: "#00aa00", weight: 2};
 	
 	function createMap() {
  
@@ -35,14 +36,14 @@
              attributionControl: true,
              maxZoom: 19
          })
-         .setView([45, -93], 4);
+         .setView([40, -97], 3);
 		 
 	 baseStreet = L.mapbox.tileLayer('fcc.k74ed5ge').addTo(map);
      baseSatellite = L.mapbox.tileLayer('fcc.k74d7n0g');
      baseTerrain = L.mapbox.tileLayer('fcc.k74cm3ol');
 		 
 	 L.control.scale({
-         position: 'bottomright'
+         position: 'bottomleft'
      }).addTo(map);
 
      geocoder = L.mapbox.geocoder('mapbox.places-v1');
@@ -131,7 +132,8 @@ function clearAll() {
 		map.removeLayer(amStation_layer);
 	}
 	$('#text-display-channel-list').html('');
-	$('#info_panel').html('Info Area');
+	$('#info_panel').css({"visibility": "hidden"}).html('Info Area');
+	
 
 }
 
@@ -145,7 +147,7 @@ var insideUs = data.location.isInsideUs;
 
 if (!insideUs) {
 var text = "ERROR: This location (" + lat + ", " + lon + ") is outside of US"
-$('#info_panel').html(text);
+$('#info_panel').css({"visibility": "visible"}).html(text);
 alert(text);
 return;
 }
@@ -278,14 +280,14 @@ channel_text += "<tr><td><span class=\"" + channel_class + "\">" + c + "</span><
 channel_text += "</table>";
 
 $("#text-display-channel-list").html(channel_text);
-$("#tabs-3").html(channel_text);
+$("#tabs-2").html(channel_text);
 
 
 $('.channel-list-span').on('click', function(e) {
 clickFM(e);
 });
 
-$('.yes').on('click', function(e) {
+$('.yes, .no').on('click', function(e) {
 clickAvailableChannel(e);
 });
 
@@ -334,13 +336,13 @@ for (index = 221; index < 301; index++) {
 var availableTableAll = makeAvailableTable(channelInfo, "all");
 var availableTableWaiver = makeAvailableTable(channelInfo, "waiver");
 
-var text = "Available Channels w/o 2/3 Waiver) [" + 
- availableChannelListAll.length + "]<br>" + availableTableAll + 
- "<br>Available Channels with 2/3 Waiver [" + availableChannelListWaiver.length +
- "]<br>" + availableTableWaiver;
+var text = "<span class=\"available-table-header\">Channels w/o 2/3 Waiver) [" + 
+ availableChannelListAll.length + "]</span><br><span class=\"available-table-header\">" + availableTableAll + 
+ "<br>Channels with 2/3 Waiver [" + availableChannelListWaiver.length +
+ "]</span><br>" + availableTableWaiver;
 
 $('#available-table-dispay').html(text);
-$("#tabs-2").html(text);
+$("#tabs-1").html(text);
 
 
 
@@ -503,7 +505,8 @@ var url = host + "/fmContours/" + uuid;
 			info_text += "<tr><td>" + facility_id + "</td><td>" + callsign + "</td><td>" + filenumber + "</td><td>" + service + "</td><td>" + class0 + "</td><td>" + channel + "</td><td>" + country + "</td><td>" + station_lat + "</td><td>" + station_lon + "</td></tr></table>";
 			
 			
-			$('#info_panel').html(info_text);
+			$('#info_panel').css({"visibility": "visible"}).html(info_text);
+			
 			console.log(info_text);
 		
 
@@ -541,7 +544,7 @@ console.log(url)
 				}).addTo(map);
 				
 				var text = "Channel " + channel + ": Nearby FM stations with &#177;3 channel #<p>";
-				$('#info_panel').html(text);
+				$('#info_panel').css({"visibility": "visible"}).html(text);
 				
 				//draw interfering contours	
 				if (map.hasLayer(interferingContours_layer)) {
@@ -582,7 +585,7 @@ function overNearbyFM(feature, layer) {
 	text += "<tr><td>" + p.facility_id + "</td><td>" + p.callsign + "</td><td>" + p.filenumber + "</td><td>" + p.service + "</td><td>" + p.class + "</td><td>" + p.channel + "</td><td>" + p.country + "</td><td>" + p.station_lat + "</td><td>" + p.station_lon + "</td></tr></table>";
 			
 	
-	$('#info_panel').html(text);
+	$('#info_panel').css({"visibility": "visible"}).html(text);
 	//highlight interfering contours
 	var dif = Math.abs(channelClicked - p.channel);
 	var class0 = p.class;
@@ -647,7 +650,7 @@ console.log(text);
 function outNearbyFM(feature, layer) {
 
 	var text = "Channel " + channelClicked + ": Nearby FM stations with &#177;3 channel #<p>";
-	$('#info_panel').html(text);
+	$('#info_panel').css({"visibility": "visible"}).html(text);
 	if (map.hasLayer(interferingContoursHighlight_layer)) {
 		map.removeLayer(interferingContoursHighlight_layer);
 	}
@@ -799,8 +802,8 @@ var url = host + "/interferingContours/" + uuid;
 	
 function amrProcess(lat, lon) {
 
-	$('#lat').val(lat);
-	$('#lon').val(lon);
+	//$('#lat').val(lat);
+	//$('#lon').val(lon);
 
 	showLoader();
 	var url = host + "/amrProcess/" + lat + "/" + lon;
@@ -826,6 +829,199 @@ $('#ajax-loader').css({"top": "-200px", "left": "-300px"});
 }
 
 	
+function search_dms() {
+
+var lat_deg = $('#lat-deg').val();
+var lat_min = $('#lat-min').val();
+var lat_sec = $('#lat-sec').val();
+var ns = $('#select-ns').val();
+var lon_deg = $('#lon-deg').val();
+var lon_min = $('#lon-min').val();
+var lon_sec = $('#lon-sec').val();
+var ew = $('#select-ew').val();
+if (lat_deg == "" || lon_deg == "") {
+alert("empty fields");
+return;
+}
+
+lat_deg = Math.floor(lat_deg);
+lat_min = Math.floor(lat_min);
+if (lat_sec == "") {
+	lat_sec = 0;
+}
+lat_sec = parseFloat(lat_sec);
+var lat = lat_deg + lat_min/60.0 + lat_sec/3600.0;
+if (ns == "S") {
+	lat = -1 * lat;
+}
+
+lon_deg = Math.floor(lon_deg);
+lon_min = Math.floor(lon_min);
+if (lon_sec == "") {
+	lon_sec = 0;
+}
+lon_sec = parseFloat(lon_sec);
+var lon = lon_deg + lon_min/60.0 + lon_sec/3600.0;
+if (ew == "W") {
+	lon = -1 * lon;
+}
+
+if (Math.abs(lat) > 90 || Math.abs(lon) > 180) {
+	alert("Lat/Lon values out of range");
+	return;
+}
+
+amrProcess(lat, lon);
+
+}
+	
+
+function search_decimal() {
+var lat = $('#latitude').val().replace(/ +/g, "");
+var lon = $('#longitude').val().replace(/ +/g, "");
+
+if (lat == "" || lon == "") {
+alert("Please enter lat/lon");
+return;
+}
+
+if (Math.abs(lat) > 90 || Math.abs(lon) > 180) {
+	alert("Lat/Lon values out of range");
+	return;
+}
+
+amrProcess(lat, lon);
+} 
+	
+function locChange() {
+	var loc = $("#input-location").val();
+	geocoder.query(loc, codeMap);
+	
+	function codeMap(err, data) {
+	//alert(JSON.stringify(data));
+	var lat = data.latlng[0];
+	var lon = data.latlng[1];
+	
+	amrProcess(lat, lon);
+
+ }
+}
+
+function searchCallsign() {
+var callsign = $('#input-callsign').val().toUpperCase();
+
+if (callsign == "") {
+alert("No call sign");
+return;
+}
+
+var url = host + "/amContour/" + callsign;
+
+	$.ajax(url, {
+        type: "GET",
+        url: url,
+        dataType: "json",
+        success: function(data){
+			if (data.features.length > 0) {
+				if (map.hasLayer(amStation_layer)) {
+					map.removeLayer(amStation_layer);
+				}
+			
+				amStation_layer =  L.geoJson(data, {
+				style: contour_style_am_station
+				}).addTo(map);
+				map.fitBounds(amStation_layer.getBounds());
+				amStation_layer.on("click", function(e) {
+					clickedMap(e);
+				});
+			}
+		}
+	});
+}
+
+function getAllAMCallsignList() {
+var url = host + "/allAMCallsignList";
+
+$.ajax(url, {
+	type: "GET",
+	url: url,
+	dataType: "json",
+	success: function(data){
+	
+		allAMCallsignList = data;
+
+	}
+	});
+}
+
+
+function getCallsignList(callsign, count) {
+
+var callsign_list = [];
+var i;
+var num = 0;
+//starting first letter
+for (i =0; i < allAMCallsignList.length; i++) {
+var pat = "^" + callsign + ".*";
+var regex = new RegExp( pat, 'g' );
+if (allAMCallsignList[i].match(regex)) {
+	callsign_list.push(allAMCallsignList[i]);
+	num += 1;
+	if (num == count) {
+		break;
+	}
+}
+}
+
+if (callsign_list.length < count) {
+//starting second letter
+for (i =0; i < allAMCallsignList.length; i++) {
+var pat = "^." + callsign + ".*";
+var regex = new RegExp( pat, 'g' );
+if (allAMCallsignList[i].match(regex)) {
+	callsign_list.push(allAMCallsignList[i]);
+	num += 1;
+	if (num == count) {
+		break;
+	}
+}
+}
+}
+
+
+if (callsign_list.length < count) {
+//starting third letter
+for (i =0; i < allAMCallsignList.length; i++) {
+var pat = "^.." + callsign + ".*";
+var regex = new RegExp( pat, 'g' );
+if (allAMCallsignList[i].match(regex)) {
+	callsign_list.push(allAMCallsignList[i]);
+	num += 1;
+	if (num == count) {
+		break;
+	}
+}
+}
+}
+
+console.log(callsign_list);
+
+return callsign_list;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 function setupListener() {
 
@@ -894,12 +1090,167 @@ cursorX = e.pageX;
 cursorY = e.pageY;
 });
 
+     $("#input-loc-search").on("click", function(e) {
+         e.preventDefault();
+         locChange();
+     });
 
+	 $("#input-latlon-dms-search").on("click", function(e) {
+         e.preventDefault();
+         search_dms();
+     });
+	 
+	 $("#input-latlon-decimal-search").on("click", function(e) {
+         e.preventDefault();
+         search_decimal();
+     });
+
+
+	$("#input-search-switch").on('click', 'a', function(e) {
+		var search = $(e.currentTarget).data('value');
+		
+		e.preventDefault();	
+
+        $("#input-location").val('');
+		$("#input-callsign").val('');
+
+		if (search == 'loc') {
+			$("#input-latlon-dms").css('display', 'none');
+			$("#span-latlon-dms-search").css('display', 'none');
+			$("#input-latlon-decimal").css('display', 'none');
+			$("#span-latlon-decimal-search").css('display', 'none');
+			$("#input-callsign").css('display', 'none');
+			$("#span-callsign-search").css('display', 'none');
+			
+			$("#input-location").css('display', 'block');
+			$("#span-location-search").css('display', 'table-cell');
+			$("#btn-label").text('Location');
+        }
+		
+        else if (search == 'latlon-dms') {
+		    $("#input-location").css('display', 'none');
+            $("#span-location-search").css('display', 'none');
+			$("#input-latlon-decimal").css('display', 'none');
+			$("#span-latlon-decimal-search").css('display', 'none');
+			$("#input-callsign").css('display', 'none');
+			$("#span-callsign-search").css('display', 'none');
+			
+            $("#input-latlon-dms").css('display', 'block');
+            $("#span-latlon-dms-search").css('display', 'table-cell');
+			$("#btn-label").text('Lat/lon Deg-Min_Sec');
+        }
+		
+		
+        else if (search == 'latlon-decimal') {
+		    $("#input-location").css('display', 'none');
+            $("#span-location-search").css('display', 'none');
+			$("#input-latlon-dms").css('display', 'none');
+			$("#span-latlon-dms-search").css('display', 'none');
+			$("#input-callsign").css('display', 'none');
+			$("#span-callsign-search").css('display', 'none');
+			
+            $("#input-latlon-decimal").css('display', 'block');
+            $("#span-latlon-decimal-search").css('display', 'table-cell');
+			$("#btn-label").text('Decimal Lat/Lon');
+        }
+		
+		else if (search == 'callsign') {
+		    $("#input-location").css('display', 'none');
+            $("#span-location-search").css('display', 'none');
+			$("#input-latlon-dms").css('display', 'none');
+			$("#span-latlon-dms-search").css('display', 'none');
+			$("#input-latlon-decimal").css('display', 'none');
+			$("#span-latlon-decimal-search").css('display', 'none');
+			
+            $("#input-callsign").css('display', 'block');
+            $("#span-callsign-search").css('display', 'table-cell');
+			$("#btn-label").text('Callsign');
+        }
+		
+	});
+	
+	$('#input-location').keypress(function (e) {
+	 var key = e.which;
+	 if(key == 13)  // the enter key code
+	  {
+	    $('#input-loc-search').click();
+	    return false;  
+	  }
+	}); 
+	
+	$('#lat-deg, #lon-deg, #lat-min, #lon-min, #lat-sec, #lon-sec, #select-ns, #select-ew').keypress(function (e) {
+	 var key = e.which;
+	 if(key == 13)  // the enter key code
+	  {
+	    $('#input-latlon-dms-search').click();
+	    return false;  
+	  }
+	});
+	
+		
+	$('#latitude, #longitude').keypress(function (e) {
+	 var key = e.which;
+	 if(key == 13)  // the enter key code
+	  {
+	    $('#input-latlon-decimal-search').click();
+	    return false;  
+	  }
+	});
+	
+     $('#btn-geoLocation').click(function(event) {
+         if (navigator.geolocation) {
+             navigator.geolocation.getCurrentPosition(function(position) {
+                 var geo_lat = position.coords.latitude;
+                 var geo_lon = position.coords.longitude;
+                 var geo_acc = position.coords.accuracy;
+
+                 map.setView([geo_lat, geo_lon], 12);
+
+             }, function(error) {
+                 //alert('Error occurred. Error code: ' + error.code);    
+                 alert('Sorry, your current location could not be found. \nPlease use the search box to enter your location.');
+             }, {
+                 timeout: 4000
+             });
+         } else {
+             alert('Sorry, your current location could not be found. \nPlease use the search box to enter your location.');
+         }
+
+         return false;
+     });
+
+	$("#btn-nationLocation").on("click", function() {
+         //map.fitBounds(bounds_us);
+		 map.setView([40, -97], 3);
+     });
+	
+	$( "#input-callsign" ).autocomplete({
+        source: function( request, response ) {
+			var callsign = request.term.toUpperCase();
+			var callsign_list = getCallsignList(callsign, 20);
+			response(callsign_list);
+
+        },
+        minLength: 1,
+        select: function( event, ui ) {
+            setTimeout(function() {searchCallsign();}, 200);
+			//searchCallsign();
+        },
+        open: function() {
+			$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+        },
+        close: function() {
+			$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+        }
+	});
+	
+	
 }
 
 
 $(document).ready(function() {
 	createMap();
 	setupListener();
+	getAllAMCallsignList();
 	
 });

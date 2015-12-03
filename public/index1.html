@@ -35,36 +35,64 @@
                             <div class="input-group">
 							
                                 <div class="input-group-btn">
-                                    <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button"><span id="btn-label">SAC</span> <span class="caret"></span></button>
+                                    <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button"><span id="btn-label">Location</span> <span class="caret"></span></button>
                                     <ul id="input-search-switch" role="menu" class="dropdown-menu">
-									    <li><a href="#" data-value="sac">SAC</a></li>
-										<li><a href="#" data-value="co_name">Company</a></li>
-										<li><a href="#" data-value="provider">Competitor</a></li>
-                                        <li><a href="#" data-value="loc">Location</a></li>
+										<li><a href="#" data-value="loc">Location</a></li>
+									    <li><a href="#" data-value="latlon-dms">Deg-Min-Sec</a></li>
+										<li><a href="#" data-value="latlon-decimal">Decimal Latlon</a></li>
+										<li><a href="#" data-value="callsign">AM Call Sign</a></li>
+                                        
                                     </ul>
                                 </div>
 								
-								
-								<input id="input-sac" class="form-control" type="search" placeholder="Enter SAC" style="display: block">
-                                <input id="input-location" class="form-control" type="search" placeholder="Enter Location" style="display: none">
+								<input id="input-location" class="form-control" type="search" placeholder="Enter Location" style="display: block">
+								<div id="input-latlon-dms" class="form-control" type="search" placeholder="Enter Latlon deg-min-sec" style="display: none">
+								<table id="table-latlon-dms"><tr>
+								<td>Lat:<input id="lat-deg"   placeholder="deg" style="width: 50px"></td>
+								<td><input  id="lat-min" placeholder="min" style="width: 50px"></td>
+								<td><input id="lat-sec" placeholder="sec" style="width: 50px"></td>
+								<td><select id="select-ns" style="width: 50px">
+								<option value="N" selected>N</option>
+								<option value="S">S</option>
+								</select></td>
+								<td>Lon:<input id="lon-deg"   placeholder="deg" style="width: 50px"></td>
+								<td><input  id="lon-min" placeholder="min" style="width: 50px"></td>
+								<td><input id="lon-sec" placeholder="sec" style="width: 50px"></td>
+								<td><select id="select-ew" style="width: 50px">
+								<option value="W" selected>W</option>
+								<option value="E">E</option>
+								</select></td>
+								</tr></table>
+								</div>
 								<input id="input-co_name" class="form-control" type="search" placeholder="Enter Company Name" style="display: none">
-								<input id="input-provider" class="form-control" type="search" placeholder="Enter Competitor Name" style="display: none">
+								<div id="input-latlon-decimal" class="form-control" type="search" placeholder="Enter Latlon decimal" style="display: none">
+								<table id="table-latlon-decimal"><tr>
+								<td>Latitude:<input id="latitude"   placeholder="41.234567" style="width: 150px"></td>
+								<td width=75></td>
+								<td>Longitude:<input id="longitude"   placeholder="-91.234567" style="width: 150px"></td>
+
+								</tr></table>
+								</div>
+								
+								
+								<input id="input-callsign" class="form-control" type="search" placeholder="Enter AM Call Sign" style="display: none">
  
-                                <span class="input-group-btn" id="span-location-search" style="display: none">                        
+                                <span class="input-group-btn" id="span-location-search" style="display: table-cell">                        
 									<button class="btn-search btn btn-default" type="submit" id="input-loc-search" title="Location Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">Location Search</span></button>
                                 </span>
 								
-                                <span class="input-group-btn" id="span-sac-search" style="display: table-cell">                        
-									<button class="btn-search btn btn-default" id="input-sac-search" title="SAC Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">SAC Search</span></button>
+                                <span class="input-group-btn" id="span-latlon-dms-search" style="display: none">                        
+									<button class="btn-search btn btn-default" id="input-latlon-dms-search" title="DMS Latlon Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">DMS Lat/Lon Search</span></button>
                                 </span>
 								
-								<span class="input-group-btn" id="span-co_name-search" style="display: none">                        
-									<button class="btn-search btn btn-default" id="input-co_name-search" title="Comapy Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">Company Search</span></button>
+								<span class="input-group-btn" id="span-latlon-decimal-search" style="display: none">                        
+									<button class="btn-search btn btn-default" id="input-latlon-decimal-search" title="Decimal Latlon Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">Decimal Lat/Lon Search</span></button>
                                 </span>
 								
-								<span class="input-group-btn" id="span-provider-search" style="display: none">                        
-									<button class="btn-search btn btn-default" id="input-provider-search" title="Competitor Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">Competitor Search</span></button>
+								<span class="input-group-btn" id="span-callsign-search" style="display: none">                        
+									<button class="btn-search btn btn-default" id="input-callsign-search" title="Call Sign Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">Call Sign Search</span></button>
                                 </span>
+
 								
                             </div>
                         </div>
@@ -86,9 +114,9 @@
 			<div class="col-md-8X" style="width: 600px">
                 <div class="map-container">
 					<div id="map">
-						<div id="info_panel" style="position: absolute; padding: 5px; top: 5px; left: 50px; width: 550px; background-color: #fff; border: solid 1px #000; border-radius: 8px; z-index: 999" >
+					</div>
+					<div id="info_panel" style="width: 100%; background-color: #fff; border: solid 1px #000; visibility: hidden; padding: 5px;" >
 						Info Area
-						</div>
 					</div>
 						
 					<div id="tooltip_box_div" class="map-toolTip" style="z-index: 0">
@@ -105,29 +133,17 @@
 			
 			<div id="tabs">
   <ul>
-    <li><a href="#tabs-1" style="width: 75px">Location</a></li>
-    <li><a href="#tabs-2" style="width: 78px">Summary</a></li>
-    <li><a href="#tabs-3" style="width: 88px">Details</a></li>
+    <li><a href="#tabs-1" style="width: 75px">Summary</a></li>
+    <li><a href="#tabs-2" style="width: 78px">Details</a></li>
+
   </ul>
   <div id="tabs-1" class="tabs-x">
-  <div id="tabs-1-info">
-Show AM station contour:<br>
-Call sign:<input id="am-callsign"> <button id="am-callsign-btn">go</button>
-<p>
-Define a point for FM translator:<br>
-Latitude:<input id=lat><br> Longitude: <input id=lon><p>
-<button id=latlon-btn>Submit</button> <p>
-
-Or click anywhere on the map (and wait for 5 seconds)<p>
-  </div>
+  Available channels list
   </div>
   <div id="tabs-2" class="tabs-x">
-  Available Channels List
+  Details for each channel
   </div>
-  <div id="tabs-3" class="tabs-x">
-  Channel Details
 
-	</div>
 </div>
 			
 		

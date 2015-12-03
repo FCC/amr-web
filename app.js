@@ -127,86 +127,12 @@ app.get('/fmForAvailableChannel/:channel/:uuid0', function(req, res){
 amr.fmForAvailableChannel(req, res);
 });
 
-
-
-app.get('/contour/:serviceType/:idType/:id_format/:stationClass/:timePeriod', function(req, res){
-contour.contour(req, res);
+app.get('/amCallsigns/:callsign/:count', function(req, res){
+amr.amCallsigns(req, res);
 });
 
-app.get('/contour/:serviceType/:idType/:id_format', function(req, res){
-contour.contour(req, res);
-});
-
-app.get('/id/:serviceType/:idType_format', function(req, res){
-contour.id(req, res);
-});
-
-app.get('/getTVContourByFilenumber/:filenumber', function(req, res){
-contour.getTVContourByFilenumber(req, res);
-});
-
-app.get('/getFMContourByFilenumber/:filenumber', function(req, res){
-contour.getFMContourByFilenumber(req, res);
-});
-
-app.get('/getAMContourByAntennaId/:antid/:station_class/:time_period', function(req, res){
-contour.getAMContourByAntennaId(req, res);
-});
-
-app.get('/getTVContourByApplicationId/:application_id', function(req, res){
-contour.getTVContourByApplicationId(req, res);
-});
-
-app.get('/getFMContourByApplicationId/:application_id', function(req, res){
-contour.getFMContourByApplicationId(req, res);
-});
-
-app.get('/getTVContourByCallsign/:callsign', function(req, res){
-contour.getTVContourByCallsign(req, res);
-});
-
-app.get('/getFMContourByCallsign/:callsign', function(req, res){
-contour.getFMContourByCallsign(req, res);
-});
-
-app.get('/getFMContourByCallsign/:callsign', function(req, res){
-contour.getFMContourByCallsign(req, res);
-});
-
-app.get('/getAMContourByCallsign/:callsign/:station_class/:time_period', function(req, res){
-contour.getAMContourByCallsign(req, res);
-});
-
-app.get('/getAllTVFileNumber', function(req, res){
-contour.getAllTVFileNumber(req, res);
-});
-
-app.get('/getAllFMFileNumber', function(req, res){
-contour.getAllFMFileNumber(req, res);
-});
-
-app.get('/getAllTVCallsign', function(req, res){
-contour.getAllTVCallsign(req, res);
-});
-
-app.get('/getAllFMCallsign', function(req, res){
-contour.getAllFMCallsign(req, res);
-});
-
-app.get('/getAllTVApplicationId', function(req, res){
-contour.getAllTVApplicationId(req, res);
-});
-
-app.get('/getAllFMApplicationId', function(req, res){
-contour.getAllFMApplicationId(req, res);
-});
-
-app.get('/getAllAMAntennaId', function(req, res){
-contour.getAllAMAntennaId(req, res);
-});
-
-app.get('/getAllAMCallsign', function(req, res){
-contour.getAllAMCallsign(req, res);
+app.get('/allAMCallsignList', function(req, res){
+amr.allAMCallsignList(req, res);
 });
 
 // **********************************************************
