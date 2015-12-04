@@ -144,7 +144,7 @@ if (insideUs) {
 				polygon_str += point_str_first
 				multipolygon_str = "MULTIPOLYGON(((" + polygon_str + ")))";
 				
-				row_str += "('" + uuid0 + "'," + lat + "," + lon + "," + dbus[i] + "," + "ST_GeomFromText('" + multipolygon_str + "', 4326))" + ", ";
+				row_str += "('" + uuid0 + "'," + lat + "," + lon + "," + dbus[i] + "," + "ST_GeomFromText('" + multipolygon_str + "', 4326), now())" + ", ";
 			}
 			else {
 				if (dbus[i] == 94) {
@@ -157,7 +157,7 @@ if (insideUs) {
 					var radius = 220;
 				}
 				
-				row_str += "('" + uuid0 + "'," + lat + "," + lon + "," + dbus[i] + "," + "ST_Buffer(ST_MakePoint(" + lon + "," + lat + ")::geography, " + radius + ")::geometry), ";
+				row_str += "('" + uuid0 + "'," + lat + "," + lon + "," + dbus[i] + "," + "ST_Buffer(ST_MakePoint(" + lon + "," + lat + ")::geography, " + radius + ")::geometry, now()), ";
 			
 			}
 		}
@@ -165,7 +165,8 @@ if (insideUs) {
 		row_str = row_str.replace(/, +$/, "");
 		
 		//insert_rows
-		q = "INSERT INTO amr.interfering_contours (uuid, lat, lon ,dbu, geom) VALUES " + row_str;
+		q = "INSERT INTO amr.interfering_contours (uuid, lat, lon ,dbu, geom, create_ts) VALUES " + row_str;
+		console.log(q);
 		var query = client.query(q);
 
 		query.on('end', function() {
@@ -472,7 +473,7 @@ return [lat2, lon2]
 
 function interferingContours(req, res) {
 	var uuid = req.params.id;
-	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":interfering_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=uuid='" + uuid + "'";
+	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":interfering_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
 	var http = require('http');
 	http.get(url, function(res1) {
 		var data = "";
