@@ -22,8 +22,8 @@
 	var clickX = 0;
 	var clickY = 0;
 
-	var host = 'http://localhost:6479';
-	//var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
+	//var host = 'http://localhost:6479';
+	var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
 	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 	var geo_space = "amr";
 
