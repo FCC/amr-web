@@ -5,8 +5,9 @@
 	var interferingContoursNow;
 	var interferingContours_layer;
 	var interferingContoursHighlight_layer;
-	var fmContoursNow;
+	var allFMContoursNow;
 	var fmContours_layer;
+	var fmContoursHighlight_layer;
 	var amStation_layer;
 	var amProcessNow;
 	var interferenceType;
@@ -22,14 +23,15 @@
 	var clickX = 0;
 	var clickY = 0;
 
-	//var host = 'http://localhost:6479';
-	var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
+	var host = 'http://localhost:6479';
+	//var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
 	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 	var geo_space = "amr";
 
 	var contour_style = {color: "#f00", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#faa", weight: 2};
-	var contour_style_highlight = {color: "#ff0", opacity: 1.0,  fillOpacity: 0.75, fillColor: "#aa5555", weight: 3};
-	var contour_style_fm = {color: "#00f", opacity: 1.0,  fillOpacity: 0.5, fillColor: "#aaf", weight: 2};
+	var contour_style_highlight = {color: "#ff0", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#fff", weight: 3};
+	var contour_style_highlight_fm = {color: "#ff0", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#fff", weight: 7};
+	var contour_style_fm = {color: "#00f", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#aaf", weight: 2};
 	var contour_style_am_station = {color: "#00aa00", opacity: 1.0,  fillOpacity: 0.0, fillColor: "#00aa00", weight: 2};
 	
 	function createMap() {
@@ -377,11 +379,11 @@ text += country_language;
 text += channelAvailabilityTable + legend_text;
 
 $("#tabs-1").html(text);
+//switch to summary tab
+$( "#tabs" ).tabs({active: 0});
 console.log(text);
 $('.summary').on("click", function(e) {
-
 clickedOnSummaryTable(e);
-
 });
 
 }
@@ -607,7 +609,7 @@ var url = host + "/fmContours/" + uuid;
 				onEachFeature: onEachFeature_interfering_contour
 			}).addTo(map);
 			
-			map.fitBounds(interferingContours_layer.getBounds());
+			//map.fitBounds(interferingContours_layer.getBounds());
 			
 			//make interfering contours clickable
 			interferingContours_layer.on("click", function(e) {
@@ -638,6 +640,7 @@ var url = host + "/fmContours/" + uuid;
 
 function clickAvailableChannel(e) {
 var channel = $(e.target).html();
+channelClicked = channel;
 showAllFMContours(channel);
 }
 
@@ -655,6 +658,8 @@ console.log(url)
         url: url,
         dataType: "json",
         success: function(data){
+		
+			allFMContoursNow = data;
 			if (data.features.length > 0) {
 				if (map.hasLayer(fmContours_layer)) {
 					map.removeLayer(fmContours_layer);
@@ -772,8 +777,23 @@ function overNearbyFM(feature, layer) {
 		style: contour_style_highlight
 	}).addTo(map);
 
+	//FM contour highlight
+	var features =[];
+	for (var i = 0; i < allFMContoursNow.features.length; i++) {
+		if (allFMContoursNow.features[i].properties.uuid == p.uuid) {
+			features.push(allFMContoursNow.features[i]);
+		}
+	}
+	console.log('features=');
+	console.log(features);
+	var fm_geojson = {"type": "FeatureCollection", "features": features};
+	if (map.hasLayer(fmContoursHighlight_layer)) {
+		map.removeLayer(fmContoursHighlight_layer);
+	}
+	fmContoursHighlight_layer = L.geoJson(fm_geojson, {
+		style: contour_style_highlight_fm
+	}).addTo(map).bringToBack();
 
-	
 console.log(text);
 }
 
@@ -784,6 +804,11 @@ function outNearbyFM(feature, layer) {
 	if (map.hasLayer(interferingContoursHighlight_layer)) {
 		map.removeLayer(interferingContoursHighlight_layer);
 	}
+	if (map.hasLayer(fmContoursHighlight_layer)) {
+		map.removeLayer(fmContoursHighlight_layer);
+	}
+	
+	
 }
 
 function onEachFeature_interfering_contour(feature, layer) {

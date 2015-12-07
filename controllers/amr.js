@@ -166,7 +166,7 @@ if (insideUs) {
 		
 		//insert_rows
 		q = "INSERT INTO amr.interfering_contours (uuid, lat, lon ,dbu, geom, create_ts) VALUES " + row_str;
-		console.log(q);
+		//console.log(q);
 		var query = client.query(q);
 
 		query.on('end', function() {
@@ -500,8 +500,8 @@ function fmContours(req, res) {
 	//var station_lat = req.params.station_lat;
 	//var station_lon = req.params.station_lon;
 	var uuid = req.params.id;
-	//var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'+AND+station_lat=" + station_lat + "+AND+station_lon=" + station_lon + "+AND+service+IN+('FM','FL','FX', 'FA', 'FR')";
-	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=uuid='" + uuid + "'";
+	//var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'+AND+station_lat=" + station_lat + "+AND+station_lon=" + station_lon + "+AND+service+IN+('FM','FL','FX', 'FA', 'FR')";
+	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=uuid='" + uuid + "'";
 
 	var http = require('http');
 	http.get(url, function(res1) {
@@ -586,7 +586,7 @@ function fmForAvailableChannel(req, res) {
 		fac_file_tuple = "(" + fac_file_tuple.replace(/,$/, "") + ")";
 		uuid_tuple = "(" + uuid_tuple.replace(/,$/, "") + ")";
 		
-		var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=500&outputFormat=application%2Fjson&cql_filter=uuid+IN+" + uuid_tuple;
+		var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=500&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=uuid+IN+" + uuid_tuple;
 		var http = require('http');
 		http.get(url, function(res1) {
 			var data = "";
