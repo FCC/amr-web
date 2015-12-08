@@ -22,9 +22,9 @@
 .country-language {font-size: 10px; color: #a00; font-weight: bold; font-style: italic}
 .available {color: #fff; border: solid 0px #000; cursor: pointer; background-color: #0a0}
 .available-with-waiver {color: #fff; border: solid 0px #000; cursor: pointer; background-color: #00a}
-.unavailable {color: #fff; border: solid 0px #000; cursor: pointer; background-color: #a00; text-decoration:line-through}
+.unavailable {color: #fff; border: solid 0px #000; cursor: pointer; background-color: #999; text-decoration:line-through}
 .available-legend {width: 22px; height: 14px; font-size: 11px; color: #fff; border: solid 0px #000; background-color: #0a0; text-align: center}
 .available-with-waiver-legend {width: 22px; height: 14px; font-size: 11px; color: #fff; border: solid 0px #000; background-color: #00a; text-align: center}
-.unavailable-legend {width: 22px; height: 14px; font-size: 11px; color: #fff; border: solid 0px #000; background-color: #a00; text-align: center; text-decoration:line-through}
+.unavailable-legend {width: 22px; height: 14px; font-size: 11px; color: #fff; border: solid 0px #000; background-color: #999; text-align: center; text-decoration:line-through}
 
 body {font-size: 12px; font-family: arial; font-color: #000; cursor: default; margin: 0px; line-height: 100%}

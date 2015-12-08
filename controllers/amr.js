@@ -1,13 +1,14 @@
 
 var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 var geo_space = "amr";
+var pg_schema ="amr";
 
 
 
 function amrProcess(req, res) {
 var lat = req.params.lat;
 var lon = req.params.lon;
-	
+
 var configEnv = require('../config/env.json');
 
 var NODE_ENV = process.env.NODE_ENV;
@@ -17,15 +18,17 @@ var pg = require('pg');
 var client = new pg.Client(PG_DB);
 client.connect();
 
-var q = "SELECT ST_Intersects(geom, ST_Setsrid(ST_Makepoint(" + lon + "," + lat + "), 4326)) From amr.country_border WHERE iso = 'USA'"
+var q = "SELECT ST_Intersects(geom, ST_Setsrid(ST_Makepoint(" + lon + "," + lat + "), 4326)) FROM " + pg_schema + ".amr_country_border WHERE iso = 'USA'"
 var query = client.query(q);
+
 var data = [];
+
 query.on('row', function(row) {
 	data.push(row);
 });
 query.on('end', function() {
-var insideUs = data[0].st_intersects;
 
+var insideUs = data[0].st_intersects;
 if (insideUs) {
 	
 	var http = require("http");
@@ -165,7 +168,7 @@ if (insideUs) {
 		row_str = row_str.replace(/, +$/, "");
 		
 		//insert_rows
-		q = "INSERT INTO amr.interfering_contours (uuid, lat, lon ,dbu, geom, create_ts) VALUES " + row_str;
+		q = "INSERT INTO " + pg_schema + ".amr_interfering_contours (uuid, lat, lon ,dbu, geom, create_ts) VALUES " + row_str;
 		//console.log(q);
 		var query = client.query(q);
 
@@ -185,15 +188,15 @@ if (insideUs) {
 			//co-channel usa
 			asyncTasks.push(function(callback) {
 				q = "SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 220 and a.service in ('FM', 'FL', 'FX') and a.class in ('A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1') and a.country = 'US' and b.uuid = '" + uuid0 + "' and b.dbu = 40 and ST_Intersects(a.geom, b.geom) \
 					union \
 					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 220 and a.service in ('FM', 'FL', 'FX') and a.class = 'B1' and a.country = 'US' and b.uuid = '" + uuid0 + "' and b.dbu = 37 and ST_Intersects(a.geom, b.geom) \
 					union \
 					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 220 and a.service in ('FM', 'FL', 'FX') and a.class = 'B' and a.country = 'US' and b.uuid = '" + uuid0 + "' and b.dbu = 34 and ST_Intersects(a.geom, b.geom)";
 			
 				var query_co = client.query(q);
@@ -211,15 +214,15 @@ if (insideUs) {
 			//first-adjacent usa
 			asyncTasks.push(function(callback) {
 				q = "SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 219 and a.service in ('FM', 'FL', 'FX') and a.class in ('A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1') and a.country = 'US' and b.uuid = '" + uuid0 + "' and b.dbu = 54 and ST_Intersects(a.geom, b.geom) \
 					union \
 					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 219 and a.service in ('FM', 'FL', 'FX') and a.class = 'B1' and a.country = 'US' and b.uuid = '" + uuid0 + "' and b.dbu = 51 and ST_Intersects(a.geom, b.geom) \
 					union \
 					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 219 and a.service in ('FM', 'FL', 'FX') and a.class = 'B' and a.country = 'US' and b.uuid = '" + uuid0 + "' and b.dbu = 48 and ST_Intersects(a.geom, b.geom)";
 				var query_1 = client.query(q);
 				var data = [];
@@ -236,15 +239,15 @@ if (insideUs) {
 			//2nd/3rd-adjacent usa
 			asyncTasks.push(function(callback) {
 				q = "SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-						FROM amr.fm_contours a, amr.interfering_contours b \
+						FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 						WHERE a.channel > 217 and a.service in ('FM', 'FL', 'FX') and a.class in ('A', 'C', 'C0', 'C1', 'C2', 'C3', 'D', 'L1') and a.country = 'US' and b.uuid = '" + uuid0 + "' and b.dbu = 100 and ST_Intersects(a.geom, b.geom) \
 						union \
 						SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-						FROM amr.fm_contours a, amr.interfering_contours b \
+						FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 						WHERE a.channel > 217 and a.service in ('FM', 'FL', 'FX') and a.class = 'B1' and a.country = 'US' and b.uuid = '" + uuid0 + "' and b.dbu = 97 and ST_Intersects(a.geom, b.geom) \
 						union \
 						SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-						FROM amr.fm_contours a, amr.interfering_contours b \
+						FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 						WHERE a.channel > 217 and a.service in ('FM', 'FL', 'FX') and a.class = 'B' and a.country = 'US' and b.uuid = '" + uuid0 + "' and b.dbu = 94 and ST_Intersects(a.geom, b.geom)";
 				var query_23 = client.query(q);
 				var data = [];
@@ -260,8 +263,8 @@ if (insideUs) {
 			
 			//34dBu intersects with Canada?
 			asyncTasks.push(function(callback) {
-				q = "SELECT True as intersects from amr.canada_border a, amr.interfering_contours b \
-					WHERE b.uuid = '" + uuid0 + "' and b.dbu = 34 and ST_Intersects(a.geom, b.geom) is True"
+				q = "SELECT true as intersects FROM " + pg_schema + ".amr_canada_border a, " + pg_schema + ".amr_interfering_contours b \
+					WHERE b.uuid = '" + uuid0 + "' and b.dbu = 34 and ST_Intersects(a.geom, b.geom) is true"
 				var query = client.query(q);
 				var data = [];
 				query.on('row', function(row) {
@@ -279,7 +282,7 @@ if (insideUs) {
 			asyncTasks.push(function(callback) {
 				q = "WITH tmp_table as \
 					(SELECT ST_Buffer(st_makepoint(" + lon + "," + lat + ")::geography, 130000)::geometry as geom1) \
-					SELECT True as intersects from amr.mexico_border a, tmp_table b where st_intersects(a.geom, b.geom1) is True"
+					SELECT true as intersects FROM " + pg_schema + ".amr_mexico_border a, tmp_table b where st_intersects(a.geom, b.geom1) is True"
 			
 				var query = client.query(q);
 				var data = [];
@@ -297,7 +300,7 @@ if (insideUs) {
 			
 			//is caribbean
 			asyncTasks.push(function(callback) {
-				var q = "SELECT true as intersects FROM amr.state_2010 WHERE id in ('PR', 'VI') and ST_Intersects(geom, ST_Setsrid(ST_Makepoint(" + lon + "," + lat + "), 4326))"
+				var q = "SELECT true as intersects FROM " + pg_schema + ".amr_state_2010 WHERE id in ('PR', 'VI') and ST_Intersects(geom, ST_Setsrid(ST_Makepoint(" + lon + "," + lat + "), 4326))"
 			
 				var query = client.query(q);
 				var data = [];
@@ -316,15 +319,15 @@ if (insideUs) {
 			//co-channel Mexico
 			asyncTasks.push(function(callback) {
 				q = "SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 220 and a.service in ('FM', 'FA', 'FR') and a.class in ('A', 'AA', 'C1', 'C', 'D') and a.country = 'MX' and b.uuid = '" + uuid0 + "' and b.dbu = 40 and ST_Intersects(a.geom, b.geom) \
 					union \
 					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 220 and a.service in ('FM', 'FA', 'FR') and a.class = 'B1' and a.country = 'MX'  and b.uuid = '" + uuid0 + "' and b.dbu = 37 and ST_Intersects(a.geom, b.geom) \
 					union \
 					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 220 and a.service in ('FM', 'FA', 'FR') and a.class = 'B' and a.country = 'MX'  and b.uuid = '" + uuid0 + "' and b.dbu = 34 and ST_Intersects(a.geom, b.geom)";
 			
 				var query = client.query(q);
@@ -342,15 +345,15 @@ if (insideUs) {
 			//first-adjacent mex
 			asyncTasks.push(function(callback) {
 				q = "SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 219 and a.service in ('FM', 'FA', 'FR') and a.class in ('A', 'AA','C1', 'C', 'D') and a.country = 'MX' and b.uuid = '" + uuid0 + "' and b.dbu = 54 and ST_Intersects(a.geom, b.geom) \
 					union \
 					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 219 and a.service in ('FM', 'FA', 'FR') and a.class = 'B1' and a.country = 'MX' and b.uuid = '" + uuid0 + "' and b.dbu = 51 and ST_Intersects(a.geom, b.geom) \
 					union \
 					SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-					FROM amr.fm_contours a, amr.interfering_contours b \
+					FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 					WHERE a.channel > 219 and a.service in ('FM', 'FA', 'FR') and a.class = 'B' and a.country = 'MX' and b.uuid = '" + uuid0 + "' and b.dbu = 48 and ST_Intersects(a.geom, b.geom)";
 				var query = client.query(q);
 				var data = [];
@@ -367,15 +370,15 @@ if (insideUs) {
 			//2nd/3rd-adjacent mex
 			asyncTasks.push(function(callback) {
 				q = "SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-						FROM amr.fm_contours a, amr.interfering_contours b \
+						FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 						WHERE a.channel > 217 and a.service in ('FM', 'FA', 'FR') and a.class in ('A', 'AA', 'C1', 'C', 'D') and a.country = 'MX' and b.uuid = '" + uuid0 + "' and b.dbu = 100 and ST_Intersects(a.geom, b.geom) \
 						union \
 						SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-						FROM amr.fm_contours a, amr.interfering_contours b \
+						FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 						WHERE a.channel > 217 and a.service in ('FM', 'FA', 'FR') and a.class = 'B1' and a.country = 'MX' and b.uuid = '" + uuid0 + "' and b.dbu = 97 and ST_Intersects(a.geom, b.geom) \
 						union \
 						SELECT a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel, a.station_lat, a.station_lon, a.uuid, ST_Area(ST_Intersection(a.geom, b.geom)::geography)/1000000 as area, ST_Area(b.geom::geography)/1000000 as area1 \
-						FROM amr.fm_contours a, amr.interfering_contours b \
+						FROM " + pg_schema + ".amr_fm_contours a, " + pg_schema + ".amr_interfering_contours b \
 						WHERE a.channel > 217 and a.service in ('FM', 'FA', 'FR') and a.class = 'B' and a.country = 'MX' and b.uuid = '" + uuid0 + "' and b.dbu = 94 and ST_Intersects(a.geom, b.geom)";
 				var query = client.query(q);
 				var data = [];
@@ -440,7 +443,7 @@ var pg = require('pg');
 var client = new pg.Client(PG_DB);
 client.connect();
 
-var q = "SELECT ST_Intersects(geom, ST_Setsrid(ST_Makepoint(" + lon + "," + lat + "), 4326)) From amr.country_border WHERE iso = 'USA'"
+var q = "SELECT ST_Intersects(geom, ST_Setsrid(ST_Makepoint(" + lon + "," + lat + "), 4326)) FROM " + pg_schema + ".amr_country_border WHERE iso = 'USA'"
 var query = client.query(q);
 var data = [];
 query.on('row', function(row) {
@@ -473,7 +476,7 @@ return [lat2, lon2]
 
 function interferingContours(req, res) {
 	var uuid = req.params.id;
-	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":interfering_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
+	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_interfering_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
 	var http = require('http');
 	http.get(url, function(res1) {
 		var data = "";
@@ -500,8 +503,8 @@ function fmContours(req, res) {
 	//var station_lat = req.params.station_lat;
 	//var station_lon = req.params.station_lon;
 	var uuid = req.params.id;
-	//var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'+AND+station_lat=" + station_lat + "+AND+station_lon=" + station_lon + "+AND+service+IN+('FM','FL','FX', 'FA', 'FR')";
-	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=uuid='" + uuid + "'";
+	//var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'+AND+station_lat=" + station_lat + "+AND+station_lon=" + station_lon + "+AND+service+IN+('FM','FL','FX', 'FA', 'FR')";
+	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=uuid='" + uuid + "'";
 
 	var http = require('http');
 	http.get(url, function(res1) {
@@ -522,7 +525,7 @@ function amContour(req, res) {
 	var callsign = req.params.callsign;
 	
 	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + 
-	geo_space + ":am_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=callsign='" +
+	geo_space + ":amr_am_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=callsign='" +
 	callsign + "'+AND+((class='A'+AND+contour_level=2)+OR+(class IN ('B','C','D')+AND+contour_level=2))";
 
 	var http = require('http');
@@ -542,6 +545,7 @@ function amContour(req, res) {
 function fmForAvailableChannel(req, res) {
 	var channel = parseInt(req.params.channel);
 	var uuid0 = req.params.uuid0;
+	
 	var ch1 = channel - 3;
 	if (ch1 < 218) {
 		ch1 = 218;
@@ -562,43 +566,50 @@ function fmForAvailableChannel(req, res) {
 
 	q = "WITH tmp_table as \
 		(SELECT ST_Buffer(geom::geography, 50000)::geometry as geom1 \
-		FROM amr.interfering_contours WHERE uuid = '" + uuid0 + "' and dbu = 34) \
+		FROM " + pg_schema + ".amr_interfering_contours WHERE uuid = '" + uuid0 + "' and dbu = 34) \
 		SELECT a.uuid, a.callsign, a.filenumber, a.facility_id, a.service, a.class, a.channel \
-		FROM amr.fm_contours a, tmp_table b \
+		FROM " + pg_schema + ".amr_fm_contours a, tmp_table b \
 		WHERE a.channel >= " + ch1 + " and a.channel <= " + ch2 + " and a.service in ('FM', 'FL', 'FX', 'FA', 'FR')  and ST_Intersects(a.geom, b.geom1) \
 		ORDER BY channel";
 	
 	var query = client.query(q);
 	var data = [];
-	console.log(data);
+
 	query.on('row', function(row) {
 		data.push(row);
 	});
 	query.on('end', function() {
-		client.end();
-		var fac_file_tuple = "";
-		var uuid_tuple = "";
-		for (var i = 0; i < data.length; i++) {
-			fac_file_tuple += "'" + data[i].facility_id + "_" + data[i].filenumber  + "',";
-			uuid_tuple += "'" + data[i].uuid  + "',";
+
+		if (data.length == 0) {
+			res.send({"features": []});
 		}
-		
-		fac_file_tuple = "(" + fac_file_tuple.replace(/,$/, "") + ")";
-		uuid_tuple = "(" + uuid_tuple.replace(/,$/, "") + ")";
-		
-		var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":fm_contours&maxFeatures=500&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=uuid+IN+" + uuid_tuple;
-		var http = require('http');
-		http.get(url, function(res1) {
-			var data = "";
-			res1.on('data', function (chunk) {
-				data += chunk;
-			});
-			res1.on("end", function() {
-				res.send(data);
-			});
-		}).on("error", function() {
-				//console.log('error');
-			});
+		else {
+			client.end();
+			var fac_file_tuple = "";
+			var uuid_tuple = "";
+			for (var i = 0; i < data.length; i++) {
+				fac_file_tuple += "'" + data[i].facility_id + "_" + data[i].filenumber  + "',";
+				uuid_tuple += "'" + data[i].uuid  + "',";
+			}
+			
+			fac_file_tuple = "(" + fac_file_tuple.replace(/,$/, "") + ")";
+			uuid_tuple = "(" + uuid_tuple.replace(/,$/, "") + ")";
+			
+			var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=500&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=uuid+IN+" + uuid_tuple;
+			var http = require('http');
+			http.get(url, function(res1) {
+				var data = "";
+				res1.on('data', function (chunk) {
+					data += chunk;
+				});
+				res1.on("end", function() {
+					res.send(data);
+				});
+			}).on("error", function() {
+					//console.log('error');
+				});
+			
+		}
 
 
 		
@@ -621,7 +632,7 @@ var pg = require('pg');
 var client = new pg.Client(PG_DB);
 client.connect();
 
-var q = "SELECT distinct callsign FROM amr.am_contours WHERE callsign like '" + callsign + "%' ORDER BY callsign LIMIT " + count;
+var q = "SELECT distinct callsign FROM " + pg_schema + ".amr_am_contours WHERE callsign like '" + callsign + "%' ORDER BY callsign LIMIT " + count;
 console.log(q);
 var query = client.query(q);
 var data = [];
@@ -629,13 +640,14 @@ query.on('row', function(row) {
 	data.push(row);
 });
 query.on('end', function() {
+client.end();
 var callsign_list = [];
 for (var i = 0; i < data.length; i++) {
 	callsign_list.push(data[i].callsign);
 }
 
 res.send(callsign_list);
-client.end();
+
 });
 
 
@@ -653,7 +665,7 @@ var pg = require('pg');
 var client = new pg.Client(PG_DB);
 client.connect();
 
-var q = "SELECT distinct callsign FROM amr.am_contours ORDER BY callsign";
+var q = "SELECT distinct callsign FROM " + pg_schema + ".amr_am_contours ORDER BY callsign";
 
 var query = client.query(q);
 var data = [];
