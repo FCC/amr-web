@@ -168,8 +168,7 @@
 	<script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
 	<link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
 	<script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.1.0/leaflet-pip.min.js"></script>
-    <script src="js/app.js"></script>
-	   <script src="js/app1.js"></script>
+	   <script src="js/app.js"></script>
 	
     <script>
     $(function() {
@@ -180,7 +179,9 @@
 
 <img id="ajax-loader" src="img/ajax-loader.gif" style="position: absolute; top: -200px; left: -300px">
 <div id="cursor-tip" style="position: absolute; top: -200px; left: -300px"></div>
-
+<div id="dialog-confirm" title="Set FM Translator location" style="display: none">
+  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><span id="translator-alert-text">This will place an FM translator</span></p>
+</div>
 	
 </body>
 

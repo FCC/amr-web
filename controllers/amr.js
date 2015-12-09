@@ -3,6 +3,9 @@ var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 var geo_space = "amr";
 var pg_schema ="amr";
 
+var geo_host = "http://ldevtm-geo02:8080/geoserver";
+var geo_space = "geo_swat";
+var pg_schema ="swat";
 
 
 function amrProcess(req, res) {
@@ -19,6 +22,7 @@ var client = new pg.Client(PG_DB);
 client.connect();
 
 var q = "SELECT ST_Intersects(geom, ST_Setsrid(ST_Makepoint(" + lon + "," + lat + "), 4326)) FROM " + pg_schema + ".amr_country_border WHERE iso = 'USA'"
+
 var query = client.query(q);
 
 var data = [];
@@ -477,6 +481,7 @@ return [lat2, lon2]
 function interferingContours(req, res) {
 	var uuid = req.params.id;
 	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_interfering_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
+	console.log(url);
 	var http = require('http');
 	http.get(url, function(res1) {
 		var data = "";
