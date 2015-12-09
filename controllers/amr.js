@@ -3,9 +3,9 @@ var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 var geo_space = "amr";
 var pg_schema ="amr";
 
-var geo_host = "http://ldevtm-geo02:8080/geoserver";
-var geo_space = "geo_swat";
-var pg_schema ="swat";
+//var geo_host = "http://ldevtm-geo02:8080/geoserver";
+//var geo_space = "geo_swat";
+//var pg_schema ="swat";
 
 
 function amrProcess(req, res) {
