@@ -8,6 +8,7 @@ var pg_schema ="amr";
 //var pg_schema ="swat";
 
 
+
 function amrProcess(req, res) {
 var lat = req.params.lat;
 var lon = req.params.lon;
