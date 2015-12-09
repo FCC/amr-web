@@ -482,7 +482,7 @@ return [lat2, lon2]
 function interferingContours(req, res) {
 	var uuid = req.params.id;
 	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_interfering_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
-	console.log(url);
+
 	var http = require('http');
 	http.get(url, function(res1) {
 		var data = "";

@@ -91,45 +91,50 @@ function clickedMap(e) {
 	}
 	translatorMarker_tmp = L.marker([lat, lon]).addTo(map);
 	
-	var translatorLat_dms = getDMS(lat, "lat");
-	var translatorLon_dms = getDMS(lon, "lon");
-	var alert_text = "This will set translator at:<br>Lat: " + lat + " (" + translatorLat_dms + ")<br>Lon: " + lon + " (" + translatorLon_dms + ")";
-	$('#translator-alert-text').html(alert_text);
+	if (map.hasLayer(interferingContours_layer)) {
+		var translatorLat_dms = getDMS(lat, "lat");
+		var translatorLon_dms = getDMS(lon, "lon");
+		var alert_text = "This will set translator at:<br>Lat: " + lat + " (" + translatorLat_dms + ")<br>Lon: " + lon + " (" + translatorLon_dms + ")";
+		$('#translator-alert-text').html(alert_text);
+		$( "#dialog-confirm" ).dialog({
+		  resizable: false,
+		  height:140,
+		  width: 300,
+		  modal: true,
+		  buttons: {
+			"Yes": function() {
+				$( this ).dialog( "close" );
 
-	
-    $( "#dialog-confirm" ).dialog({
-      resizable: false,
-      height:140,
-	  width: 300,
-      modal: true,
-      buttons: {
-        "Yes": function() {
-			$( this ).dialog( "close" );
-
-			//remove tmp marker
-			if (map.hasLayer(translatorMarker_tmp)) {
-				map.removeLayer(translatorMarker_tmp);
+				//remove tmp marker
+				if (map.hasLayer(translatorMarker_tmp)) {
+					map.removeLayer(translatorMarker_tmp);
+				}
+				//add perm marker
+				if (map.hasLayer(translatorMarker)) {
+					map.removeLayer(translatorMarker);
+				}
+				translatorMarker = L.marker([lat, lon]).addTo(map);
+		
+				translatorLat = lat;
+				translatorLon = lon;
+		
+				amrProcess(lat, lon);
+			},
+			Cancel: function() {
+			  $( this ).dialog( "close" );
+				//remove tmp marker
+				if (map.hasLayer(translatorMarker_tmp)) {
+					map.removeLayer(translatorMarker_tmp);
+				}
 			}
-			//add perm marker
-			if (map.hasLayer(translatorMarker)) {
-				map.removeLayer(translatorMarker);
-			}
-			translatorMarker = L.marker([lat, lon]).addTo(map);
+		  }
+		});
+	}
+	else {
+		amrProcess(lat, lon);
+	}
 	
-          	translatorLat = lat;
-			translatorLon = lon;
 	
-			amrProcess(lat, lon);
-        },
-        Cancel: function() {
-          $( this ).dialog( "close" );
-			//remove tmp marker
-			if (map.hasLayer(translatorMarker_tmp)) {
-				map.removeLayer(translatorMarker_tmp);
-			}
-        }
-      }
-    });
 	
 }
 	
@@ -1210,14 +1215,25 @@ function locChange() {
 	geocoder.query(loc, codeMap);
 	
 	function codeMap(err, data) {
-	//alert(JSON.stringify(data));
+console.log(data);
+	if (data.results.features.length == 0) {
+		alert("No results found");
+		return;
+	}
 	var lat = data.latlng[0];
 	var lon = data.latlng[1];
-	
+
 	amrProcess(lat, lon);
 
  }
 }
+
+
+function searchLocation() {
+locChange();
+
+}
+
 
 function searchCallsign() {
 var callsign = $('#input-callsign').val().toUpperCase();
@@ -1594,6 +1610,34 @@ cursorY = e.pageY;
         select: function( event, ui ) {
             setTimeout(function() {searchCallsign();}, 200);
 			//searchCallsign();
+        },
+        open: function() {
+			$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+        },
+        close: function() {
+			$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+        }
+	});
+	
+	$( "#input-location" ).autocomplete({
+        source: function( request, response ) {
+			var location = request.term;
+			geocoder.query(location, processAddress);
+			
+			function processAddress(err, data) {
+			
+			var f = data.results.features;
+			var addresses = [];
+			for (var i = 0; i < f.length; i++) {
+				addresses.push(f[i].place_name);
+			}
+			response(addresses);
+
+			}
+        },
+        minLength: 3,
+        select: function( event, ui ) {
+            setTimeout(function() {searchLocation();}, 200);
         },
         open: function() {
 			$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
