@@ -30,8 +30,8 @@
 	var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
 	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 	var geo_space = "amr";
-	//var geo_host = "http://ldevtm-geo02:8080/geoserver";
-	//var geo_space = "geo_swat";
+	var geo_host = "http://ldevtm-geo02:8080/geoserver";
+	var geo_space = "geo_swat";
 
 	var contour_style = {color: "#f00", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#faa", weight: 2};
 	var contour_style_highlight = {color: "#ff0", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#fff", weight: 3};
