@@ -54,7 +54,7 @@ var logDirectory = __dirname + '/log';
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
 var accessLogStream = fsr.getStream({
-    filename: logDirectory + '/fcc-pdf-%DATE%.log',
+    filename: logDirectory + '/fcc-amr-%DATE%.log',
     frequency: 'daily',
     verbose: false
 });

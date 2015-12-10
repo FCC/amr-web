@@ -26,9 +26,6 @@
 	var clickX = 0;
 	var clickY = 0;
 
-	
-	//var host = 'http://localhost:6479';
-	var host ="http://amr-web-node-dev01.elasticbeanstalk.com";
 	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
 	var geo_space = "amr";
 	//var geo_host = "http://ldevtm-geo02:8080/geoserver";
@@ -560,7 +557,7 @@ var id = e.target.id;
 var channel_impacted = id.split(":")[0];
 var uuid = id.split(":")[1];
 
-var url = host + "/fmContours/" + uuid;
+var url = "fmContours/" + uuid;
 
 	$.ajax(url, {
         type: "GET",
@@ -709,7 +706,8 @@ highlightCellInSummaryTable(channel);
 
 showLoader("center");
 
-var url = host + "/fmForAvailableChannel/" + channel + "/" + uuid4InterferringContour;
+var url = "fmForAvailableChannel/" + channel + "/" + uuid4InterferringContour;
+
 console.log(url)
 	$.ajax(url, {
         type: "GET",
@@ -1033,7 +1031,8 @@ return text;
 
 	
 function getInterferingContours(uuid) {
-var url = host + "/interferingContours/" + uuid;
+
+var url = "interferingContours/" + uuid;
 
 	$.ajax(url, {
         type: "GET",
@@ -1089,8 +1088,7 @@ function amrProcess(lat, lon) {
 		showLoader("center");
 	}
 	
-	
-	var url = host + "/amrProcess/" + lat + "/" + lon;
+	var url = "amrProcess/" + lat + "/" + lon;
 
 	$.ajax(url, {
         type: "GET",
@@ -1244,7 +1242,7 @@ alert("No call sign");
 return;
 }
 
-var url = host + "/amContour/" + callsign;
+var url ="amContour/" + callsign;
 
 	$.ajax(url, {
         type: "GET",
@@ -1308,7 +1306,8 @@ $('#cursor-tip').css({"top": cursorY-20, "left": cursorX-10});
 
 
 function getAllAMCallsignList() {
-var url = host + "/allAMCallsignList";
+
+var url = "allAMCallsignList";
 
 $.ajax(url, {
 	type: "GET",
@@ -1416,7 +1415,7 @@ alert("Please call sign");
 return;
 }
 
-var url = host + "/amContour/" + callsign;
+var url = "amContour/" + callsign;
 
 	$.ajax(url, {
         type: "GET",
