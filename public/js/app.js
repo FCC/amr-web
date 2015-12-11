@@ -1484,7 +1484,7 @@ cursorY = e.pageY;
 			
 			$("#input-location").css('display', 'block');
 			$("#span-location-search").css('display', 'table-cell');
-			$("#btn-label").text('Location');
+			$("#btn-label").text('Address');
         }
 		
         else if (search == 'latlon-dms') {
@@ -1497,7 +1497,7 @@ cursorY = e.pageY;
 			
             $("#input-latlon-dms").css('display', 'block');
             $("#span-latlon-dms-search").css('display', 'table-cell');
-			$("#btn-label").text('Lat/lon Deg-Min_Sec');
+			$("#btn-label").text('Lat/lon (DMS)');
         }
 		
 		
@@ -1511,7 +1511,7 @@ cursorY = e.pageY;
 			
             $("#input-latlon-decimal").css('display', 'block');
             $("#span-latlon-decimal-search").css('display', 'table-cell');
-			$("#btn-label").text('Decimal Lat/Lon');
+			$("#btn-label").text('Lat/Lon (decimal)');
         }
 		
 		else if (search == 'callsign') {
@@ -1524,7 +1524,7 @@ cursorY = e.pageY;
 			
             $("#input-callsign").css('display', 'block');
             $("#span-callsign-search").css('display', 'table-cell');
-			$("#btn-label").text('Callsign');
+			$("#btn-label").text('AM Call Sign');
         }
 		
 	});
