@@ -1,23 +1,41 @@
 
-var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
-var geo_space = "amr";
-var pg_schema ="amr";
+var config = getConfig();
+var geo_host = config.GEO_HOST;
+var geo_space = config.GEO_SPACE;
+var PG_DB = config.PG_DB;
+var pg_schema = config.PG_SCHEMA;
 
-//var geo_host = "http://ldevtm-geo02:8080/geoserver";
-//var geo_space = "geo_swat";
-//var pg_schema ="swat";
+function getConfig() {
+var configEnv = require('../config/env.json');
 
+var NODE_ENV = process.env.NODE_ENV || "NONE";
+var NODE_PORT =  process.env.PORT || configEnv[NODE_ENV].NODE_PORT;
+var PG_DB = configEnv[NODE_ENV].PG_DB;
+var PG_SCHEMA = configEnv[NODE_ENV].PG_SCHEMA;
+var GEO_HOST = configEnv[NODE_ENV].GEO_HOST;
+var GEO_SPACE = configEnv[NODE_ENV].GEO_SPACE;
+
+var ret = {"NODE_PORT": NODE_PORT,
+			"PG_DB": PG_DB,
+			"PG_SCHEMA": PG_SCHEMA,
+			"GEO_HOST": GEO_HOST,
+			"GEO_SPACE": GEO_SPACE
+		};
+		
+return ret;
+}
 
 
 function amrProcess(req, res) {
 var lat = req.params.lat;
 var lon = req.params.lon;
 
-var configEnv = require('../config/env.json');
+if (isNaN(parseFloat(lat)) || isNaN(parseFloat(lon))) {
+	console.log('error: invalid lat/lon');
+	res.send({'status': 'error'});
+	return;
+}
 
-var NODE_ENV = process.env.NODE_ENV;
-var PG_DB = configEnv[NODE_ENV].PG_DB;
-	
 var pg = require('pg');
 var client = new pg.Client(PG_DB);
 client.connect();
@@ -31,6 +49,12 @@ var data = [];
 query.on('row', function(row) {
 	data.push(row);
 });
+
+query.on('error', function(row) {
+		console.log('error accessing DB, query= ' + q);
+		res.send({'status': 'error'});
+});
+
 query.on('end', function() {
 
 var insideUs = data[0].st_intersects;
@@ -48,7 +72,8 @@ if (insideUs) {
 			processElevation(data);
 		});
 	}).on("error", function() {
-		//res.send('error');
+		console.log('error accessing ' + url);
+		res.send({'status': 'error'});
 	});
 
 	function processElevation(data) {
@@ -59,7 +84,6 @@ if (insideUs) {
 		rcamsl = Math.round(rcamsl*10)/10;
 		
 		var lat1 = Math.abs(lat)
-		console.log('lat1=' + lat1);
 		var dlat = Math.floor(lat1)
 		var mlat = Math.floor((lat1 - dlat) * 60);
 		var slat = Math.floor(Math.round((lat1 - (dlat + mlat/60.0)) * 3600))
@@ -75,9 +99,7 @@ if (insideUs) {
 		if (lon < 0) {
 			ew = -1
 		}
-
-		console.log(lat + ' ' + lon + ' | ' + dlat + ' ' + mlat + ' ' + slat + ' ' + ns + ' ' + dlon + ' ' + mlon + ' ' + slon + ' ' + ew + ' ' + elevation + ' ' + rcamsl)
-		
+	
 		var url = "http://transition.fcc.gov/fcc-bin/haat_calculator?dlat=" + dlat + "&mlat=" + mlat + "&slat=" + slat + "&ns=" + ns + "&dlon=" + dlon + "&mlon=" + mlon + "&slon=" + slon + "&ew=" + ew + "&nad=83&rcamsl=" + rcamsl + "&nradials=360&terdb=0&text=1";
 
 		http.get(url, function(res1) {
@@ -89,7 +111,8 @@ if (insideUs) {
 				processHaat(data);
 			});
 		}).on("error", function() {
-			//res.send('error');
+			console.log('error accessing ' + url);
+			res.send({'status': 'error'});
 		});
 	}
 	
@@ -110,8 +133,7 @@ if (insideUs) {
 		
 	function processHaat2(haatData, ht_str) {
 		var ht_json = JSON.parse(ht_str);
-		console.log('json done!!!!!!!!!!!!!!!!!!!!!');
-		
+
 		var data_arr = haatData.split("\n");
 		var i, j, az, dum, dum1, key0, dist, latlon, lat0, lon0;
 		var haat = [];
@@ -210,7 +232,6 @@ if (insideUs) {
 					data.push(row);
 				});
 				query_co.on('end', function() {
-					console.log("co done yes");
 					data_co_usa = data;
 					callback();
 				});
@@ -235,7 +256,6 @@ if (insideUs) {
 					data.push(row);
 				});
 				query_1.on('end', function() {
-					console.log("1st done yes");
 					data_1_usa = data;
 					callback();
 				});
@@ -261,7 +281,6 @@ if (insideUs) {
 				});
 				query_23.on('end', function() {
 					data_23_usa = data;
-					console.log('data 2 us dobe');
 					callback();
 				});
 			});
@@ -313,7 +332,6 @@ if (insideUs) {
 					data.push(row);
 				});
 				query.on('end', function() {
-					console.log(data);
 					if (data.length > 0) {
 						intersectsCaribbean = true;
 					}
@@ -341,7 +359,6 @@ if (insideUs) {
 					data.push(row);
 				});
 				query.on('end', function() {
-					console.log("co mx done");
 					data_co_mex = data;
 					callback();
 				});
@@ -366,7 +383,6 @@ if (insideUs) {
 					data.push(row);
 				});
 				query.on('end', function() {
-					console.log("1st done mex");
 					data_1_mex = data;
 					callback();
 				});
@@ -392,29 +408,13 @@ if (insideUs) {
 				});
 				query.on('end', function() {
 					data_23_mex = data;
-					console.log('data 2 mex dobe');
 					callback();
 				});
 			});
 			
-			console.log(asyncTasks);
 			
 			async.parallel(asyncTasks, function(){
-			client.end();
-				console.log('data_co');
-				//console.log(data_co_usa);
-				console.log('data_1');
-				//console.log(data_1_usa);
-				console.log('data_23');
-				//console.log(data_23_usa);
-				console.log('canada');
-				console.log(intersectsCanada);
-				console.log('mexico');
-				console.log(intersectsMexico);
-				console.log('data co mex');
-				//console.log(data_co_mex);
-				console.log('data 1 mex');
-				//console.log(data_1_mex)
+				client.end();
 				var location = {"latlng": {"lat": lat, "lng": lon}, "isInsideUs": insideUs};
 				var entry = {"uuid": uuid0, "data_co_usa": data_co_usa, "data_1_usa": data_1_usa, "data_23_usa": data_23_usa,
 							"data_co_mex": data_co_mex, "data_1_mex": data_1_mex, "data_23_mex": data_23_mex,
@@ -441,8 +441,6 @@ else {
 function isInsideUs(lat, lon) {
 var configEnv = require('../config/env.json');
 
-var NODE_ENV = process.env.NODE_ENV;
-var PG_DB = configEnv[NODE_ENV].PG_DB;
 	
 var pg = require('pg');
 var client = new pg.Client(PG_DB);
@@ -481,7 +479,7 @@ return [lat2, lon2]
 
 function interferingContours(req, res) {
 	var uuid = req.params.id;
-	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_interfering_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
+	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_interfering_contours&maxFeatures=50&outputFormat=json&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
 
 	var http = require('http');
 	http.get(url, function(res1) {
@@ -509,8 +507,8 @@ function fmContours(req, res) {
 	//var station_lat = req.params.station_lat;
 	//var station_lon = req.params.station_lon;
 	var uuid = req.params.id;
-	//var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'+AND+station_lat=" + station_lat + "+AND+station_lon=" + station_lon + "+AND+service+IN+('FM','FL','FX', 'FA', 'FR')";
-	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=uuid='" + uuid + "'";
+	//var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=json&sortBy=area+D&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'+AND+station_lat=" + station_lat + "+AND+station_lon=" + station_lon + "+AND+service+IN+('FM','FL','FX', 'FA', 'FR')";
+	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=json&sortBy=area+D&cql_filter=uuid='" + uuid + "'";
 
 	var http = require('http');
 	http.get(url, function(res1) {
@@ -529,9 +527,9 @@ function fmContours(req, res) {
 
 function amContour(req, res) {
 	var callsign = req.params.callsign;
-	
+
 	var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + 
-	geo_space + ":amr_am_contours&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=callsign='" +
+	geo_space + ":amr_am_contours&maxFeatures=50&outputFormat=json&cql_filter=callsign='" +
 	callsign + "'+AND+((class='A'+AND+contour_level=2)+OR+(class IN ('B','C','D')+AND+contour_level=2))";
 
 	var http = require('http');
@@ -544,7 +542,8 @@ function amContour(req, res) {
 			res.send(data);
 		});
 	}).on("error", function() {
-			//res.send('error');
+			console.log('error accessing ' + url);
+			res.send({'status': 'error'});
 		});
 }
 
@@ -562,9 +561,7 @@ function fmForAvailableChannel(req, res) {
 	}
 	var configEnv = require('../config/env.json');
 	
-	var NODE_ENV = process.env.NODE_ENV;
-	var PG_DB = configEnv[NODE_ENV].PG_DB;
-		
+
 	var pg = require('pg');
 	var client = new pg.Client(PG_DB);
 	
@@ -601,7 +598,7 @@ function fmForAvailableChannel(req, res) {
 			fac_file_tuple = "(" + fac_file_tuple.replace(/,$/, "") + ")";
 			uuid_tuple = "(" + uuid_tuple.replace(/,$/, "") + ")";
 			
-			var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=500&outputFormat=application%2Fjson&sortBy=area+D&cql_filter=uuid+IN+" + uuid_tuple;
+			var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=500&outputFormat=json&sortBy=area+D&cql_filter=uuid+IN+" + uuid_tuple;
 			var http = require('http');
 			http.get(url, function(res1) {
 				var data = "";
@@ -629,11 +626,6 @@ function amCallsigns(req, res) {
 var callsign = req.params.callsign;
 var count = req.params.count;
 
-var configEnv = require('../config/env.json');
-
-var NODE_ENV = process.env.NODE_ENV;
-var PG_DB = configEnv[NODE_ENV].PG_DB;
-	
 var pg = require('pg');
 var client = new pg.Client(PG_DB);
 client.connect();
@@ -662,11 +654,6 @@ res.send(callsign_list);
 
 function allAMCallsignList(req, res) {
 
-var configEnv = require('../config/env.json');
-
-var NODE_ENV = process.env.NODE_ENV;
-var PG_DB = configEnv[NODE_ENV].PG_DB;
-	
 var pg = require('pg');
 var client = new pg.Client(PG_DB);
 client.connect();

@@ -10,22 +10,29 @@ var fsr = require('file-stream-rotator');
 var fs = require('fs');
 var morgan = require('morgan');
 var cors = require('cors');
-
 var bodyparser = require('body-parser');
 var package_json = require('./package.json');
-
 var amr = require('./controllers/amr.js');
 
 // **********************************************************
 // config
 
 var configEnv = require('./config/env.json');
-console.log(process.cwd())
+console.log('cwd" ' + process.cwd())
 
-var NODE_ENV = process.env.NODE_ENV;
-//console.log('NODE_ENV : '+ NODE_ENV );
-
+var NODE_ENV = process.env.NODE_ENV || "NONE";
 var NODE_PORT =  process.env.PORT || configEnv[NODE_ENV].NODE_PORT;
+var PG_DB = configEnv[NODE_ENV].PG_DB;
+var PG_SCHEMA = configEnv[NODE_ENV].PG_SCHEMA;
+var GEO_HOST = configEnv[NODE_ENV].GEO_HOST;
+var GEO_SPACE = configEnv[NODE_ENV].GEO_SPACE;
+
+console.log('NODE_ENV : '+ NODE_ENV );
+console.log('NODE_PORT : '+ NODE_PORT );
+console.log('PG_DB : '+ PG_DB );
+console.log('PG_SCHEMA : '+ PG_SCHEMA );
+console.log('GEO_HOST : '+ GEO_HOST );
+console.log('GEO_SPACE : '+ GEO_SPACE );
 
 // **********************************************************
 // console start
@@ -33,9 +40,6 @@ var NODE_PORT =  process.env.PORT || configEnv[NODE_ENV].NODE_PORT;
 console.log('package_json.name : '+ package_json.name );
 console.log('package_json.version : '+ package_json.version );
 console.log('package_json.description : '+ package_json.description );
-
-//console.log('NODE_PORT : '+ NODE_PORT );
-//console.log('PG_DB : '+ PG_DB );
 
 // **********************************************************
 // app

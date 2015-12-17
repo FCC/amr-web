@@ -26,10 +26,6 @@
 	var clickX = 0;
 	var clickY = 0;
 
-	var geo_host = "http://amr-geoserv-tc-dev01.elasticbeanstalk.com";
-	var geo_space = "amr";
-	//var geo_host = "http://ldevtm-geo02:8080/geoserver";
-	//var geo_space = "geo_swat";
 
 	var contour_style = {color: "#f00", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#faa", weight: 2};
 	var contour_style_highlight = {color: "#ff0", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#fff", weight: 3};
@@ -258,7 +254,6 @@ channelInfo[c] = {"fm_info_co_usa": fm_info_co_usa, "fm_info_1_usa": fm_info_1_u
 
 }
 
-console.log(channelInfo);
 
 //make channel list
 var channel_text = "<table class=\"channel-list-table\"><tr><td style=\"width: 19%\">Ch</td><td style=\"width: 27%\">Co</td><td style=\"width: 27%\">First</td><td style=\"width: 27%\">2/3</td></tr>";
@@ -353,7 +348,6 @@ channel_text += "<tr id=\"row-" + c + "\"><td><span class=\"" + channel_class + 
 
 channel_text += "</table>";
 
-console.log(channel_text);
 $("#tabs-2").html(channel_text);
 
 
@@ -436,7 +430,6 @@ text += channelAvailabilityTable + legend_text;
 $("#tabs-1").html(text);
 //switch to summary tab
 $( "#tabs" ).tabs({active: 0});
-console.log(text);
 $('.summary').on("click", function(e) {
 clickedOnSummaryTable(e);
 });
@@ -663,9 +656,7 @@ var url = "fmContours/" + uuid;
 				style: contour_style,
 				onEachFeature: onEachFeature_interfering_contour
 			}).addTo(map);
-			
-			//map.fitBounds(interferingContours_layer.getBounds());
-			
+
 			//make interfering contours clickable
 			interferingContours_layer.on("click", function(e) {
 				clickedMap(e);
@@ -677,19 +668,9 @@ var url = "fmContours/" + uuid;
 			
 			
 			$('#info_panel').css({"visibility": "visible"}).html(info_text);
-			
-			console.log(info_text);
-		
 
 		}
-			
-			
-			
-			
-
 	});
-
-
 }
 
 
@@ -708,7 +689,6 @@ showLoader("center");
 
 var url = "fmForAvailableChannel/" + channel + "/" + uuid4InterferringContour;
 
-console.log(url)
 	$.ajax(url, {
         type: "GET",
         url: url,
@@ -721,7 +701,6 @@ console.log(url)
 			for (var i = 0; i < allFMContoursNow.features.length; i++) {
 				var interType = getInterferenceType(channelClicked, allFMContoursNow.features[i].properties.uuid);
 				allFMContoursNow.features[i].properties.interferenceType = interType;
-				console.log(i + ' ' + allFMContoursNow.features[i].properties.interferenceType);
 			}
 			
 			
@@ -928,8 +907,8 @@ function overNearbyFM(feature, layer) {
 			features.push(allFMContoursNow.features[i]);
 		}
 	}
-	console.log('features=');
-	console.log(features);
+
+
 	var fm_geojson = {"type": "FeatureCollection", "features": features};
 	if (map.hasLayer(fmContoursHighlight_layer)) {
 		map.removeLayer(fmContoursHighlight_layer);
@@ -938,7 +917,6 @@ function overNearbyFM(feature, layer) {
 		style: contour_style_highlight_fm
 	}).addTo(map).bringToBack();
 
-console.log(text);
 }
 
 function outNearbyFM(feature, layer) {
@@ -964,7 +942,7 @@ function onEachFeature_interfering_contour(feature, layer) {
 }
 
 function overInterfering(feature, layer) {
-console.log('over');
+
 var dbu = feature.target.feature.properties.dbu;
 var text = dbu + "dBu";
 $('#cursor-tip').html(text);
@@ -1081,6 +1059,11 @@ function amrProcess(lat, lon) {
 	translatorLat = lat;
 	translatorLon = lon;
 	
+	if (isNaN(parseFloat(lat)) || isNaN(parseFloat(lon))) {
+		alert('Invalid lat/lon');
+		return;
+	}
+	
 	if (clickX != 0 && clickY != 0) {
 		showLoader("clicked");
 	}
@@ -1095,6 +1078,11 @@ function amrProcess(lat, lon) {
         url: url,
         dataType: "json",
         success: function(data){
+			if (data.status == 'error') {
+				hideLoader();
+				alert("error");
+			}
+			else {
 			processData(data);
 			hideLoader();
 			//add marker
@@ -1102,6 +1090,7 @@ function amrProcess(lat, lon) {
 				map.removeLayer(translatorMarker);
 			}
 			translatorMarker = L.marker([lat, lon]).addTo(map);
+			}
 	
 		}
 	});
@@ -1214,7 +1203,7 @@ function locChange() {
 	geocoder.query(loc, codeMap);
 	
 	function codeMap(err, data) {
-console.log(data);
+
 	if (data.results.features.length == 0) {
 		alert("No results found");
 		return;
@@ -1288,7 +1277,6 @@ var facility_id = p.facility_id;
 var class0 = p.class;
 var level = p.contour_level;
 var text = callsign + '|' + facility_id + '|' + class0 + '|' + level + 'mv/m';
-console.log(text);
 
 $('#cursor-tip').html(text);
 $('#cursor-tip').css({"top": cursorY-20, "left": cursorX-10});
@@ -1370,8 +1358,6 @@ if (allAMCallsignList[i].match(regex)) {
 }
 }
 }
-
-console.log(callsign_list);
 
 return callsign_list;
 
