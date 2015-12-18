@@ -58,12 +58,14 @@ var logDirectory = __dirname + '/log';
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
 var accessLogStream = fsr.getStream({
-    filename: logDirectory + '/fcc-amr-%DATE%.log',
-    frequency: 'daily',
+    filename: logDirectory + '/fcc-amr.log',   
     verbose: false
 });
-
 app.use(morgan('combined', {stream: accessLogStream}))
+
+
+// Default date added using file pattern 
+
 
 // **********************************************************
 // parser
