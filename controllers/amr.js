@@ -142,7 +142,6 @@ function amrProcess(req, res) {
 	                //read haat-dist look up table
 	                var fs = require('fs');
 	                var file = data_path + "/ht.json";
-	                console.log("path:"+file);
 	                fs.readFile(file, 'utf8', function(err, data) {
 	                    if (err) {
 	                        return console.log(err);
