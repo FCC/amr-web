@@ -10,7 +10,7 @@
 .yes {color: #fff; border: solid 1px #000; cursor: pointer; background-color: #00aa00}
 .yes:hover, .no:hover {text-decoration: underline}
 
-#map {cursor: default}
+#map {cursor: default; border: 1px solid #AAA; }
 #text-display {font-size: 11px;}
 .channel-list-table { font-size: 10px; width: 100%; 	border-collapse: collapse; border: solid 1px #000}
 .channel-list-table tr, .channel-list-table td {border: solid 1px #ddd; height: 18px; text-align: center}
@@ -28,3 +28,10 @@
 .unavailable-legend {width: 22px; height: 14px; font-size: 11px; color: #fff; border: solid 0px #000; background-color: #999; text-align: center; text-decoration:line-through}
 
 body {font-size: 12px; font-family: arial; font-color: #000; cursor: default; margin: 0px; line-height: 100%}
+
+.available:focus, .available-with-waiver:focus, .unavailable:focus {
+	border: 1px solid red;
+}
+#info_panel table tr td, #info_panel table tr th {
+	padding: 5px;
+}

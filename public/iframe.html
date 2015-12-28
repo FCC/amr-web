@@ -36,7 +36,7 @@
                             <div class="input-group">
 							
                                 <div class="input-group-btn">
-                                    <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button"><span id="btn-label">Address</span> <span class="caret"></span></button>
+                                    <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button" aria-label="Click to toggle the Location drop-down menu"><span id="btn-label">Address</span> <span class="caret"></span></button>
                                     <ul id="input-search-switch" role="menu" class="dropdown-menu">
 										<li><a href="#" data-value="loc">Address</a></li>
 									    <li><a href="#" data-value="latlon-dms">Lat/Lon (DMS)</a></li>
@@ -46,36 +46,36 @@
                                     </ul>
                                 </div>
 								
-								<input id="input-location" class="form-control" type="search" placeholder="Enter Address" style="display: block">
-								<div id="input-latlon-dms" class="form-control" type="search" placeholder="Enter Latlon deg-min-sec" style="display: none">
+								<input id="input-location" class="form-control" type="search" placeholder="Enter Address" araa-label="Enter Address" style="display: block">
+								<div id="input-latlon-dms" class="form-control" type="search" placeholder="Enter Latlon deg-min-sec" araa-label="Enter Latitude and Longitude in Degrees" style="display: none">
 								<table id="table-latlon-dms"><tr>
-								<td>Lat: <input id="lat-deg"   placeholder="deg" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
-								<td><input  id="lat-min" placeholder="min" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
-								<td><input id="lat-sec" placeholder="sec" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
-								<td><select id="select-ns" style="width: 50px; border: solid 1px #eee">
+								<td>Lat: <input id="lat-deg"   placeholder="deg" araa-label="Latitude degrees" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
+								<td><input  id="lat-min" placeholder="min" araa-label="Latitude minutes" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
+								<td><input id="lat-sec" placeholder="sec" araa-label="Latitude seconds" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
+								<td><select id="select-ns" araa-label="Latitude direction" style="width: 50px; border: solid 1px #eee">
 								<option value="N" selected>N</option>
 								<option value="S">S</option>
 								</select></td>
-								<td>Lon: <input id="lon-deg"   placeholder="deg" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
-								<td><input  id="lon-min" placeholder="min" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
-								<td><input id="lon-sec" placeholder="sec" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
-								<td><select id="select-ew" style="width: 50px; border: solid 1px #eee">
+								<td>Lon: <input id="lon-deg"   placeholder="deg" araa-label="Longitude degrees" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
+								<td><input  id="lon-min" placeholder="min" araa-label="Logitude minutes" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
+								<td><input id="lon-sec" placeholder="sec" araa-label="Longitude seconds" style="width: 50px; height: 20px; border: solid 1px #eee"></td>
+								<td><select id="select-ew" araa-label="Longitude direction" style="width: 50px; border: solid 1px #eee">
 								<option value="W" selected>W</option>
 								<option value="E">E</option>
 								</select></td>
 								</tr></table>
 								</div>
-								<div id="input-latlon-decimal" class="form-control" type="search" placeholder="Enter Latlon decimal" style="display: none">
+								<div id="input-latlon-decimal" class="form-control" type="search" placeholder="Enter Latlon decimal" araa-label="Enter Latitude and Longitude in Decimals" style="display: none">
 								<table id="table-latlon-decimal"><tr>
-								<td>Latitude: <input id="latitude"   placeholder="41.234567" style="width: 150px; height: 20px; border: solid 1px #eee"></td>
+								<td>Latitude: <input id="latitude"   placeholder="41.234567" araa-label="Latitude in decimals" style="width: 150px; height: 20px; border: solid 1px #eee"></td>
 								<td width=75></td>
-								<td>Longitude: <input id="longitude"   placeholder="-91.234567" style="width: 150px; height: 20px; border: solid 1px #eee"></td>
+								<td>Longitude: <input id="longitude"   placeholder="-91.234567" araa-label="Longitude in decimals" style="width: 150px; height: 20px; border: solid 1px #eee"></td>
 
 								</tr></table>
 								</div>
 								
 								
-								<input id="input-callsign" class="form-control" type="search" placeholder="Enter AM Call Sign" style="display: none">
+								<input id="input-callsign" class="form-control" type="search" placeholder="Enter AM Call Sign" araa-label="Enter AM Call Sign" style="display: none">
  
                                 <span class="input-group-btn" id="span-location-search" style="display: table-cell">                        
 									<button class="btn-search btn btn-default" type="submit" id="input-loc-search" title="Location Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">Location Search</span></button>
@@ -115,7 +115,7 @@
                 <div class="map-container">
 					<div id="map">
 					</div>
-					<div id="info_panel" style="width: 100%; background-color: #fff; border: solid 1px #000; visibility: hidden; padding: 5px;" >
+					<div id="info_panel" style="width: 100%; background-color: #fff; border: solid 1px #000; visibility: hidden; padding: 5px;" role="alert" >
 						Info Area
 					</div>
 						
@@ -137,10 +137,10 @@
     <li><a href="#tabs-2" style="width: 78px">Details</a></li>
 
   </ul>
-  <div id="tabs-1" class="tabs-x">
+  <div id="tabs-1" class="tabs-x" tabindex="0">
   Available channels list
   </div>
-  <div id="tabs-2" class="tabs-x">
+  <div id="tabs-2" class="tabs-x" tabindex="0">
   Details for each channel
   </div>
 

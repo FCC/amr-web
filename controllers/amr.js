@@ -5,12 +5,14 @@ var geo_host = config.GEO_HOST;
 var geo_space = config.GEO_SPACE;
 var PG_DB = config.PG_DB;
 var pg_schema = config.PG_SCHEMA;
+var data_path = config.DATA_PATH;
 
 //db
 var pg_query = require('pg-query');
 pg_query.connectionParameters = PG_DB;
 
 var http = require("http");
+var geo_protocol = require(config.GEO_PROTOCOL);
 
 function getConfig() {
     var configEnv = require('../config/env.json');
@@ -21,13 +23,17 @@ function getConfig() {
     var PG_SCHEMA = configEnv[NODE_ENV].PG_SCHEMA;
     var GEO_HOST = configEnv[NODE_ENV].GEO_HOST;
     var GEO_SPACE = configEnv[NODE_ENV].GEO_SPACE;
+    var GEO_PROTOCOL = configEnv[NODE_ENV].GEO_PROTOCOL;
+    var DATA_PATH = configEnv[NODE_ENV].DATA_PATH;
 
     var ret = {
         "NODE_PORT": NODE_PORT,
         "PG_DB": PG_DB,
         "PG_SCHEMA": PG_SCHEMA,
         "GEO_HOST": GEO_HOST,
-        "GEO_SPACE": GEO_SPACE
+        "GEO_SPACE": GEO_SPACE,
+        "GEO_PROTOCOL": GEO_PROTOCOL,
+        "DATA_PATH": DATA_PATH
     };
 
     return ret;
@@ -135,7 +141,8 @@ function amrProcess(req, res) {
 	                var haatData = data;
 	                //read haat-dist look up table
 	                var fs = require('fs');
-	                var file = "data/ht.json";
+	                var file = data_path + "/ht.json";
+	                console.log("path:"+file);
 	                fs.readFile(file, 'utf8', function(err, data) {
 	                    if (err) {
 	                        return console.log(err);
@@ -537,8 +544,8 @@ function interferingContours(req, res) {
     var uuid = req.params.id;
     var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + 
 			geo_space + ":amr_interfering_contours&maxFeatures=50&outputFormat=json&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
-
-    http.get(url, function(res1) {
+	
+    geo_protocol.get(url, function(res1) {
         var data = "";
         res1.on('data', function(chunk) {
             data += chunk;
@@ -560,7 +567,7 @@ function fmContours(req, res) {
     //var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=json&sortBy=area+D&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'+AND+station_lat=" + station_lat + "+AND+station_lon=" + station_lon + "+AND+service+IN+('FM','FL','FX', 'FA', 'FR')";
     var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=json&sortBy=area+D&cql_filter=uuid='" + uuid + "'";
 
-    http.get(url, function(res1) {
+    geo_protocol.get(url, function(res1) {
         var data = "";
         res1.on('data', function(chunk) {
             data += chunk;
@@ -587,7 +594,7 @@ function amContour(req, res) {
 	        geo_space + ":amr_am_contours&maxFeatures=50&outputFormat=json&cql_filter=callsign='" +
 	        callsign + "'+AND+((class='A'+AND+contour_level=2)+OR+(class IN ('B','C','D')+AND+contour_level=2))";
 
-	    http.get(url, function(res1) {
+	    geo_protocol.get(url, function(res1) {
 	        var data = "";
 	        res1.on('data', function(chunk) {
 	            data += chunk;
@@ -659,7 +666,7 @@ function fmForAvailableChannel(req, res) {
 
 	            var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + 
 							geo_space + ":amr_fm_contours&maxFeatures=500&outputFormat=json&sortBy=area+D&cql_filter=uuid+IN+" + uuid_tuple;
-	            http.get(url, function(res1) {
+	            geo_protocol.get(url, function(res1) {
 	                var data = "";
 	                res1.on('data', function(chunk) {
 	                    data += chunk;

@@ -33,6 +33,9 @@ console.log('PG_DB : '+ PG_DB );
 console.log('PG_SCHEMA : '+ PG_SCHEMA );
 console.log('GEO_HOST : '+ GEO_HOST );
 console.log('GEO_SPACE : '+ GEO_SPACE );
+console.log('GEO_PROTOCOL : '+ configEnv[NODE_ENV].GEO_PROTOCOL);
+console.log('DATA_PATH : '+ configEnv[NODE_ENV].DATA_PATH);
+
 
 // **********************************************************
 // console start
