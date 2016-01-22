@@ -389,7 +389,7 @@ blockquote {
     }
     /* line 223, ../scss/ui-components/_header.scss */
     #menu-primary .title-emphasis {
-      font-size: 1.4285714286em;
+      font-size: 1.5em;
       font-weight: normal;
       text-transform: uppercase;
       white-space: nowrap;
