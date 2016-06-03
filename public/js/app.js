@@ -256,7 +256,7 @@ channelInfo[c] = {"fm_info_co_usa": fm_info_co_usa, "fm_info_1_usa": fm_info_1_u
 
 
 //make channel list
-var channel_text = "<table class=\"channel-list-table\"><tr><th style=\"width: 19%\">Ch</th><th style=\"width: 27%\">Co</th><th style=\"width: 27%\">First</th><th style=\"width: 27%\">2/3</th></tr>";
+var channel_text = "<table class=\"channel-list-table\"><tr><td style=\"width: 19%\">Ch</td><td style=\"width: 27%\">Co</td><td style=\"width: 27%\">First</td><td style=\"width: 27%\">2/3</td></tr>";
 for (c = 221; c < 301; c++) {
 
 //co usa
@@ -265,7 +265,7 @@ for (var i = 0; i < channelInfo[c].fm_info_co_usa.length; i++) {
 var facility_id = channelInfo[c].fm_info_co_usa[i].facility_id;
 var uuid = channelInfo[c].fm_info_co_usa[i].uuid;
 var id = c + ":" + uuid;
-text_co += "<span id=\"" + id + "\" class=\"channel-list-span\" tabindex=\"0\" role=\"button\" >" + facility_id + "</span>, ";
+text_co += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
 }
 
 //co mex
@@ -276,7 +276,7 @@ if (facility_id == -2) {
 }
 var uuid = channelInfo[c].fm_info_co_mex[i].uuid;
 var id = c + ":" + uuid;
-text_co += "<span id=\"" + id + "\" class=\"channel-list-span\" tabindex=\"0\" role=\"button\" >" + facility_id + "(m)</span>, ";
+text_co += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "(m)</span>, ";
 }
 text_co = text_co.replace(/, $/, "");
 
@@ -286,7 +286,7 @@ for (var i = 0; i < channelInfo[c].fm_info_1_usa.length; i++) {
 var facility_id = channelInfo[c].fm_info_1_usa[i].facility_id;
 var uuid = channelInfo[c].fm_info_1_usa[i].uuid;
 var id = c + ":" + uuid;
-text_1 += "<span id=\"" + id + "\" class=\"channel-list-span\" tabindex=\"0\" role=\"button\" >" + facility_id + "</span>, ";
+text_1 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
 }
 
 //1st mex
@@ -297,7 +297,7 @@ if (facility_id == -2) {
 }
 var uuid = channelInfo[c].fm_info_1_mex[i].uuid;
 var id = c + ":" + uuid;
-text_1 += "<span id=\"" + id + "\" class=\"channel-list-span\" tabindex=\"0\" role=\"button\" >" + facility_id + "(m)</span>, ";
+text_1 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "(m)</span>, ";
 }
 text_1 = text_1.replace(/, $/, "");
 
@@ -307,7 +307,7 @@ for (var i = 0; i < channelInfo[c].fm_info_23_usa.length; i++) {
 var facility_id = channelInfo[c].fm_info_23_usa[i].facility_id;
 var uuid = channelInfo[c].fm_info_23_usa[i].uuid;
 var id = c + ":" + uuid;
-text_23 += "<span id=\"" + id + "\" class=\"channel-list-span\" tabindex=\"0\" role=\"button\" >" + facility_id + "</span>, ";
+text_23 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "</span>, ";
 }
 
 //2nd/3rd mex
@@ -318,7 +318,7 @@ if (facility_id == -2) {
 }
 var uuid = channelInfo[c].fm_info_23_mex[i].uuid;
 var id = c + ":" + uuid;
-text_23 += "<span id=\"" + id + "\" class=\"channel-list-span\" tabindex=\"0\" role=\"button\" >" + facility_id + "(m)</span>, ";
+text_23 += "<span id=\"" + id + "\" class=\"channel-list-span\">" + facility_id + "(m)</span>, ";
 }
 text_23 = text_23.replace(/, $/, "");
 
@@ -342,7 +342,7 @@ else {
 	channel_class = "unavailable";
 }
 
-channel_text += "<tr id=\"row-" + c + "\"><td><span class=\"" + channel_class + " details\" tabindex=\"0\" role=\"button\" >" + c + "</span></td><td>" + text_co + "</td><td>" + text_1 + "</td><td>" + text_23 + "</td></tr>";
+channel_text += "<tr id=\"row-" + c + "\"><td><span class=\"" + channel_class + " details\">" + c + "</span></td><td>" + text_co + "</td><td>" + text_1 + "</td><td>" + text_23 + "</td></tr>";
 
 }
 
@@ -353,18 +353,10 @@ $("#tabs-2").html(channel_text);
 
 $('.channel-list-span').on('click', function(e) {
 clickFM(e);
-}).keydown(function(e) {
-    if (e.which === 32 || e.which === 13) {
-      this.click();
-    }
 });
 
 $('.details').on('click', function(e) {
 clickAvailableChannel(e);
-}).keydown(function(e) {
-    if (e.which === 32 || e.which === 13) {
-      this.click();
-    }
 });
 
 //country language
@@ -439,11 +431,7 @@ $("#tabs-1").html(text);
 //switch to summary tab
 $( "#tabs" ).tabs({active: 0});
 $('.summary').on("click", function(e) {
-	clickedOnSummaryTable(e);
-}).keydown(function(e) {
-    if (e.which === 32 || e.which === 13) {
-      this.click();
-    }
+clickedOnSummaryTable(e);
 });
 
 }
@@ -496,7 +484,17 @@ var a0 = Math.abs(a);
 var deg = Math.floor(a0);
 var min = Math.floor((a0 - deg) * 60);
 var sec = (a0 - deg -min/60.0) * 3600;
-sec = Math.round(sec*10)/10;
+sec = Math.round(sec);
+
+if (sec == 60) {
+	sec = 0;
+	min++;
+}
+if (min == 60) {
+	min = 0;
+	deg++;
+}
+
 var dir;
 if (latlon == "lat") {
 	if (a >= 0) {
@@ -674,8 +672,8 @@ var url = "fmContours/" + uuid;
 				clickedMap(e);
 			});
 			
-			var info_text = "Channel " + channel_impacted + " is not available because of <b>" + type_str + "</b> interference with the following FM station:</br></br>";
-			info_text += "<table border=1 cellspacing=0><tr><th>Facility ID</th><th>Call Sign</th><th>File Number</th><th>Service</th><th>Class</th><th>Channel</th><th>Country</th><th>Station Lat</th><th>Station Lon</th></tr>";
+			var info_text = "Channel " + channel_impacted + " is not available because of <b>" + type_str + "</b> interference with the following FM station:<br>";
+			info_text += "<table border=1 cellspacing=0><tr><td>Facility ID</td><td>Call Sign</td><td>File Number</td><td>Service</td><td>Class</td><td>Channel</td><td>Country</td><td>Station Lat</td><td>Station Lon</td></tr>";
 			info_text += "<tr><td>" + facility_id + "</td><td>" + callsign + "</td><td>" + filenumber + "</td><td>" + service + "</td><td>" + class0 + "</td><td>" + channel + "</td><td>" + country + "</td><td>" + station_lat + "</td><td>" + station_lon + "</td></tr></table>";
 			
 			
@@ -1007,7 +1005,7 @@ else {
 class0 = "unavailable";
 }	
 
-text += "<td id=\"cell-" + index + "\" align=center><span class=\"" + class0 + " summary\" role=\"button\" tabindex=\"0\" >" + index + "</span></td>"
+text += "<td id=\"cell-" + index + "\" align=center><span class=\"" + class0 + " summary\">" + index + "</span></td>"
 }
 text += "</tr>";
 }

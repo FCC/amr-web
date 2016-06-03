@@ -1,18 +1,15 @@
 
-
 var config = getConfig();
 var geo_host = config.GEO_HOST;
 var geo_space = config.GEO_SPACE;
 var PG_DB = config.PG_DB;
 var pg_schema = config.PG_SCHEMA;
-var data_path = config.DATA_PATH;
 
 //db
 var pg_query = require('pg-query');
 pg_query.connectionParameters = PG_DB;
 
 var http = require("http");
-var geo_protocol = require(config.GEO_PROTOCOL);
 
 function getConfig() {
     var configEnv = require('../config/env.json');
@@ -23,17 +20,13 @@ function getConfig() {
     var PG_SCHEMA = configEnv[NODE_ENV].PG_SCHEMA;
     var GEO_HOST = configEnv[NODE_ENV].GEO_HOST;
     var GEO_SPACE = configEnv[NODE_ENV].GEO_SPACE;
-    var GEO_PROTOCOL = configEnv[NODE_ENV].GEO_PROTOCOL;
-    var DATA_PATH = configEnv[NODE_ENV].DATA_PATH;
 
     var ret = {
         "NODE_PORT": NODE_PORT,
         "PG_DB": PG_DB,
         "PG_SCHEMA": PG_SCHEMA,
         "GEO_HOST": GEO_HOST,
-        "GEO_SPACE": GEO_SPACE,
-        "GEO_PROTOCOL": GEO_PROTOCOL,
-        "DATA_PATH": DATA_PATH
+        "GEO_SPACE": GEO_SPACE
     };
 
     return ret;
@@ -92,24 +85,41 @@ function amrProcess(req, res) {
 	            });
 
 	            function processElevation(data) {
+					
 	                var data = JSON.parse(data);
 	                var Elevation_Query = data.USGS_Elevation_Point_Query_Service;
 	                var elevation = Elevation_Query.Elevation_Query.Elevation;
 	                var rcamsl = elevation + 10; //antenna height
 	                rcamsl = Math.round(rcamsl * 10) / 10;
 
-	                var lat1 = Math.abs(lat)
-	                var dlat = Math.floor(lat1)
+	                var lat1 = Math.abs(lat);
+	                var dlat = Math.floor(lat1);
 	                var mlat = Math.floor((lat1 - dlat) * 60);
-	                var slat = Math.floor(Math.round((lat1 - (dlat + mlat / 60.0)) * 3600))
+	                var slat = Math.round(Math.round((lat1 - (dlat + mlat / 60.0)) * 3600));
+					if (slat == 60) {
+						slat = 0;
+						mlat++;
+					}
+					if (mlat == 60) {
+						mlat = 0;
+						dlat++;
+					}
 	                ns = 1
 	                if (lat < 0) {
 	                    ns = -1
 	                }
-	                var lon1 = Math.abs(lon)
-	                var dlon = Math.floor(lon1)
+	                var lon1 = Math.abs(lon);
+	                var dlon = Math.floor(lon1);
 	                var mlon = Math.floor((lon1 - dlon) * 60);
-	                var slon = Math.floor(Math.round((lon1 - (dlon + mlon / 60.0)) * 3600))
+	                var slon = Math.round(Math.round((lon1 - (dlon + mlon / 60.0)) * 3600));
+					if (slon == 60) {
+						slon = 0;
+						mlon++;
+					}
+					if (mlon == 60) {
+						mlon = 0;
+						dlon++;
+					}
 	                ew = 1
 	                if (lon < 0) {
 	                    ew = -1
@@ -119,13 +129,13 @@ function amrProcess(req, res) {
 							dlat + "&mlat=" + mlat + "&slat=" + slat + "&ns=" + ns + "&dlon=" + 
 							dlon + "&mlon=" + mlon + "&slon=" + slon + "&ew=" + ew + "&nad=83&rcamsl=" + 
 							rcamsl + "&nradials=360&terdb=0&text=1";
-
+					
 	                http.get(url, function(res1) {
 	                    var data = "";
 	                    res1.on('data', function(chunk) {
 	                        data += chunk;
 	                    });
-	                    res1.on("end", function() {
+	                    res1.on("end", function() {				
 	                        processHaat(data);
 	                    });
 	                }).on("error", function() {
@@ -141,7 +151,7 @@ function amrProcess(req, res) {
 	                var haatData = data;
 	                //read haat-dist look up table
 	                var fs = require('fs');
-	                var file = data_path + "/ht.json";
+	                var file = "data/ht.json";
 	                fs.readFile(file, 'utf8', function(err, data) {
 	                    if (err) {
 	                        return console.log(err);
@@ -153,7 +163,7 @@ function amrProcess(req, res) {
 				
 	            function processHaat2(haatData, ht_str) {
 	                var ht_json = JSON.parse(ht_str);
-
+					
 	                var data_arr = haatData.split("\n");
 	                var i, j, az, dum, dum1, key0, dist, latlon, lat0, lon0;
 	                var haat = [];
@@ -180,7 +190,7 @@ function amrProcess(req, res) {
 	                        var point_str = "";
 	                        var polygon_str = "";
 	                        for (az = 0; az < haat.length; az++) {
-	                            key0 = dbus[i] + ":" + haat[az];
+								key0 = dbus[i] + ":" + haat[az];
 	                            dist = ht_json[key0];
 	                            latlon = getLatLonPoint(lat, lon, az, dist);
 	                            var lat0 = Math.round(latlon[0] * 1000000) / 1000000;
@@ -543,8 +553,8 @@ function interferingContours(req, res) {
     var uuid = req.params.id;
     var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + 
 			geo_space + ":amr_interfering_contours&maxFeatures=50&outputFormat=json&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
-	
-    geo_protocol.get(url, function(res1) {
+
+    http.get(url, function(res1) {
         var data = "";
         res1.on('data', function(chunk) {
             data += chunk;
@@ -566,7 +576,7 @@ function fmContours(req, res) {
     //var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=json&sortBy=area+D&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'+AND+station_lat=" + station_lat + "+AND+station_lon=" + station_lon + "+AND+service+IN+('FM','FL','FX', 'FA', 'FR')";
     var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=json&sortBy=area+D&cql_filter=uuid='" + uuid + "'";
 
-    geo_protocol.get(url, function(res1) {
+    http.get(url, function(res1) {
         var data = "";
         res1.on('data', function(chunk) {
             data += chunk;
@@ -593,7 +603,7 @@ function amContour(req, res) {
 	        geo_space + ":amr_am_contours&maxFeatures=50&outputFormat=json&cql_filter=callsign='" +
 	        callsign + "'+AND+((class='A'+AND+contour_level=2)+OR+(class IN ('B','C','D')+AND+contour_level=2))";
 
-	    geo_protocol.get(url, function(res1) {
+	    http.get(url, function(res1) {
 	        var data = "";
 	        res1.on('data', function(chunk) {
 	            data += chunk;
@@ -665,7 +675,7 @@ function fmForAvailableChannel(req, res) {
 
 	            var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + 
 							geo_space + ":amr_fm_contours&maxFeatures=500&outputFormat=json&sortBy=area+D&cql_filter=uuid+IN+" + uuid_tuple;
-	            geo_protocol.get(url, function(res1) {
+	            http.get(url, function(res1) {
 	                var data = "";
 	                res1.on('data', function(chunk) {
 	                    data += chunk;
