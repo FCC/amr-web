@@ -10,6 +10,7 @@ var pg_query = require('pg-query');
 pg_query.connectionParameters = PG_DB;
 
 var http = require("http");
+var async = require('async');
 
 function getConfig() {
     var configEnv = require('../config/env.json');
@@ -74,6 +75,7 @@ function amrProcess(req, res) {
 	                    data += chunk;
 	                });
 	                res1.on("end", function() {
+	                	console.log('Returned from http://ned.usgs.gov');
 	                    processElevation(data);
 	                });
 	            }).on("error", function() {
@@ -89,7 +91,7 @@ function amrProcess(req, res) {
 	                var data = JSON.parse(data);
 	                var Elevation_Query = data.USGS_Elevation_Point_Query_Service;
 	                var elevation = Elevation_Query.Elevation_Query.Elevation;
-	                var rcamsl = elevation + 10; //antenna height
+	                var rcamsl = parseFloat(elevation) + 10; //antenna height
 	                rcamsl = Math.round(rcamsl * 10) / 10;
 
 	                var lat1 = Math.abs(lat);
@@ -130,12 +132,15 @@ function amrProcess(req, res) {
 							dlon + "&mlon=" + mlon + "&slon=" + slon + "&ew=" + ew + "&nad=83&rcamsl=" + 
 							rcamsl + "&nradials=360&terdb=0&text=1";
 					
+					console.log('getting HAAT')
+
 	                http.get(url, function(res1) {
 	                    var data = "";
 	                    res1.on('data', function(chunk) {
 	                        data += chunk;
 	                    });
-	                    res1.on("end", function() {				
+	                    res1.on("end", function() {
+	                    	console.log('HAAT returned');		
 	                        processHaat(data);
 	                    });
 	                }).on("error", function() {
@@ -162,6 +167,8 @@ function amrProcess(req, res) {
 
 				
 	            function processHaat2(haatData, ht_str) {
+	            	console.log('Processing HAAT');
+
 	                var ht_json = JSON.parse(ht_str);
 					
 	                var data_arr = haatData.split("\n");
@@ -237,7 +244,9 @@ function amrProcess(req, res) {
 	                    });
 						}
 						else {
-							var async = require('async');
+
+							console.log('Interferring contours created');
+
 							var asyncTasks = [];
 							var data_co_usa = [];
 							var data_1_usa = [];
