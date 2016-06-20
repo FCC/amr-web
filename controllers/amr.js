@@ -9,8 +9,14 @@ var pg_schema = config.PG_SCHEMA;
 var pg_query = require('pg-query');
 pg_query.connectionParameters = PG_DB;
 
-var http = require("http");
+var http = require('http');
+var https = require('https');
 var async = require('async');
+
+var protocol = http;
+if (geo_host.toLowerCase().match(/https/)) {
+	protocol = https;
+}
 
 function getConfig() {
     var configEnv = require('../config/env.json');
@@ -68,7 +74,6 @@ function amrProcess(req, res) {
 	        if (insideUs) {
 
 	            var url = "http://ned.usgs.gov/epqs/pqs.php?x=" + lon + "&y=" + lat + "&units=Meters&output=json";
-
 	            http.get(url, function(res1) {
 	                var data = "";
 	                res1.on('data', function(chunk) {
@@ -562,8 +567,8 @@ function interferingContours(req, res) {
     var uuid = req.params.id;
     var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + 
 			geo_space + ":amr_interfering_contours&maxFeatures=50&outputFormat=json&sortBy=dbu&cql_filter=uuid='" + uuid + "'";
-
-    http.get(url, function(res1) {
+		
+    protocol.get(url, function(res1) {
         var data = "";
         res1.on('data', function(chunk) {
             data += chunk;
@@ -584,8 +589,8 @@ function fmContours(req, res) {
     var uuid = req.params.id;
     //var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=json&sortBy=area+D&cql_filter=facility_id=" + facility_id + "+AND+filenumber='" + filenumber + "'+AND+class='" + class0 + "'+AND+station_lat=" + station_lat + "+AND+station_lon=" + station_lon + "+AND+service+IN+('FM','FL','FX', 'FA', 'FR')";
     var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":amr_fm_contours&maxFeatures=50&outputFormat=json&sortBy=area+D&cql_filter=uuid='" + uuid + "'";
-
-    http.get(url, function(res1) {
+	
+    protocol.get(url, function(res1) {
         var data = "";
         res1.on('data', function(chunk) {
             data += chunk;
@@ -612,7 +617,7 @@ function amContour(req, res) {
 	        geo_space + ":amr_am_contours&maxFeatures=50&outputFormat=json&cql_filter=callsign='" +
 	        callsign + "'+AND+((class='A'+AND+contour_level=2)+OR+(class IN ('B','C','D')+AND+contour_level=2))";
 
-	    http.get(url, function(res1) {
+	    protocol.get(url, function(res1) {
 	        var data = "";
 	        res1.on('data', function(chunk) {
 	            data += chunk;
@@ -684,7 +689,7 @@ function fmForAvailableChannel(req, res) {
 
 	            var url = geo_host + "/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + 
 							geo_space + ":amr_fm_contours&maxFeatures=500&outputFormat=json&sortBy=area+D&cql_filter=uuid+IN+" + uuid_tuple;
-	            http.get(url, function(res1) {
+	            protocol.get(url, function(res1) {
 	                var data = "";
 	                res1.on('data', function(chunk) {
 	                    data += chunk;
