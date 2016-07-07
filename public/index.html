@@ -10,7 +10,9 @@ var returned_url =  window.location.href;
 console.log(returned_url);
 var last = returned_url.slice(-1);
 console.log(last);
-//window.location.href = '/';
+if (last != '/') {
+window.location.href = '/';
+}
 
 </script>
 
