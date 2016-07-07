@@ -79,7 +79,16 @@ app.use(bodyparser.urlencoded({ extended: false }));
 // **********************************************************
 // route
 
+app.get('/', function(req, res, next){
+
+	res.sendFile('index.html', { root: __dirname + '/public' });
+	return;
+
+});
+
 app.use('/', express.static(__dirname + '/public'));
+
+
 app.use('/api-docs', express.static(__dirname + '/public/api-docs.html'));
 
 app.param('uuid', function(req, res, next, uuid){
@@ -108,9 +117,6 @@ app.param('ext', function(req, res, next, ext) {
 	}
 });
 
-app.get('/', function(req, res){
-  res.sendfile('./public/index.html');
-});
 
 app.get('/amrProcess/:lat/:lon', function(req, res){
 amr.amrProcess(req, res);
