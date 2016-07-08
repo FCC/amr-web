@@ -333,12 +333,28 @@
     <script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
     <script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.1.0/leaflet-pip.min.js"></script>
-       <script src="js/app.js"></script>
+    <script src="js/app.js"></script>
     
     <script>
-    $(function() {
-        //$("#include-about").load("about.html");
-    });
+	$(document).ready(function() {
+	
+	if (typeof(contour_style_fm) == 'undefined') {
+		var url0 = window.location.href;
+		var last_char = url0.slice(-1);
+		if (last_char != '/') {
+			url0 = url0 + '/';
+		}
+
+		window.location.href = url0;
+	}
+
+	
+	
+	
+	
+	});
+	
+	
     </script>
 
 </body>
