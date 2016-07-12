@@ -80,11 +80,18 @@ app.use(bodyparser.urlencoded({ extended: false }));
 // route
 
 app.get('/', function(req, res, next){
-
-	res.sendFile('index.html', { root: __dirname + '/public' });
+	
+	if (NODE_ENV == 'TEST' || NODE_ENV == 'PROD' || NODE_ENV == 'NONE') {
+		res.sendFile('index_prod.html', { root: __dirname + '/public' });
+	}
+	else {
+		res.sendFile('index.html', { root: __dirname + '/public' });
+	}
+	
 	return;
 
 });
+
 
 app.use('/', express.static(__dirname + '/public'));
 
