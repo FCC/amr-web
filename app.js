@@ -82,7 +82,7 @@ app.use(bodyparser.urlencoded({ extended: false }));
 app.get('/', function(req, res, next){
 	
 	if (NODE_ENV == 'TEST' || NODE_ENV == 'PROD' || NODE_ENV == 'NONE') {
-		res.sendFile('index_prod.html', { root: __dirname + '/public' });
+		res.sendFile('index_prd.html', { root: __dirname + '/public' });
 	}
 	else {
 		res.sendFile('index.html', { root: __dirname + '/public' });
