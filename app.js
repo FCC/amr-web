@@ -88,7 +88,12 @@ app.get('/', function(req, res, next){
 	//console.log('protocol='+protocol + ' hostname=' + hostname + ' url='  + url + ' originalUrl=' + originalUrl);
 	
 	if (NODE_ENV == 'TEST' || NODE_ENV == 'PROD' || NODE_ENV == 'NONE') {
-		var url0 = protocol + '://' + hostname + '/amr-channel-finder/index.html';
+		if (hostname == 'ltstndj-web01a') {
+			var url0 = 'https://apps2test.fcc.gov/amr-channel-finder/index.html';
+		}
+		else {
+			var url0 = 'https://apps2.fcc.gov/amr-channel-finder/index.html';
+		}
 		//console.log(url0);
 		res.redirect(url0);
 	}
