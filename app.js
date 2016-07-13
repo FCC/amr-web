@@ -81,8 +81,16 @@ app.use(bodyparser.urlencoded({ extended: false }));
 
 app.get('/', function(req, res, next){
 	
+	var protocol = req.protocol;
+	var hostname = req.hostname;
+	var url = req.url;
+	var originalUrl = req.originalUrl;
+	//console.log('protocol='+protocol + ' hostname=' + hostname + ' url='  + url + ' originalUrl=' + originalUrl);
+	
 	if (NODE_ENV == 'TEST' || NODE_ENV == 'PROD' || NODE_ENV == 'NONE') {
-		res.sendFile('index_prd.html', { root: __dirname + '/public' });
+		var url0 = protocol + '://' + hostname + '/amr-channel-finder/index.html';
+		//console.log(url0);
+		res.redirect(url0);
 	}
 	else {
 		res.sendFile('index.html', { root: __dirname + '/public' });
