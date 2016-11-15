@@ -1,4 +1,7 @@
 
+	//var HOST_PATH = HOST NAME + "/api/contours/"; //ST, AT, PROD
+	var HOST_PATH = "http://contours-api-node-dev.us-west-2.elasticbeanstalk.com/"; //LOCAL & DEV
+
 	var map;
 	var contour_json;
 	var station_marker;
@@ -26,7 +29,9 @@
 	var clickX = 0;
 	var clickY = 0;
 
-
+	
+	
+	
 	var contour_style = {color: "#f00", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#faa", weight: 2};
 	var contour_style_highlight = {color: "#ff0", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#fff", weight: 3};
 	var contour_style_highlight_fm = {color: "#ff0", opacity: 1.0,  fillOpacity: 0.1, fillColor: "#fff", weight: 7};
@@ -560,7 +565,7 @@ var id = e.target.id;
 var channel_impacted = id.split(":")[0];
 var uuid = id.split(":")[1];
 
-var url = "fmContours/" + uuid;
+var url = HOST_PATH + "fmContours/" + uuid;
 
 	$.ajax(url, {
         type: "GET",
@@ -697,7 +702,7 @@ highlightCellInSummaryTable(channel);
 
 showLoader("center");
 
-var url = "fmForAvailableChannel/" + channel + "/" + uuid4InterferringContour;
+var url = HOST_PATH + "fmForAvailableChannel/" + channel + "/" + uuid4InterferringContour;
 
 	$.ajax(url, {
         type: "GET",
@@ -1020,7 +1025,7 @@ return text;
 	
 function getInterferingContours(uuid) {
 
-var url = "interferingContours/" + uuid;
+var url = HOST_PATH + "interferingContours/" + uuid;
 
 	$.ajax(url, {
         type: "GET",
@@ -1081,7 +1086,7 @@ function amrProcess(lat, lon) {
 		showLoader("center");
 	}
 	
-	var url = "amrProcess/" + lat + "/" + lon;
+	var url = HOST_PATH + "amrProcess/" + lat + "/" + lon;
 
 	$.ajax(url, {
         type: "GET",
@@ -1241,7 +1246,7 @@ alert("No call sign");
 return;
 }
 
-var url ="amContour/" + callsign;
+var url = HOST_PATH + "amContour/" + callsign;
 
 	$.ajax(url, {
         type: "GET",
@@ -1305,7 +1310,8 @@ $('#cursor-tip').css({"top": cursorY-20, "left": cursorX-10});
 
 function getAllAMCallsignList() {
 
-var url = "allAMCallsignList";
+var url = HOST_PATH + "/allAMCallsignList";
+console.log(url)
 
 $.ajax(url, {
 	type: "GET",
@@ -1411,7 +1417,7 @@ alert("Please call sign");
 return;
 }
 
-var url = "amContour/" + callsign;
+var url = HOST_PATH + "amContour/" + callsign;
 
 	$.ajax(url, {
         type: "GET",

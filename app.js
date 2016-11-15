@@ -21,6 +21,7 @@ var configEnv = require('./config/env.json');
 console.log('cwd" ' + process.cwd())
 
 var NODE_ENV = process.env.NODE_ENV || "NONE";
+var HOST = configEnv[NODE_ENV].HOST;
 var NODE_PORT =  process.env.PORT || configEnv[NODE_ENV].NODE_PORT;
 var PG_DB = configEnv[NODE_ENV].PG_DB;
 var PG_SCHEMA = configEnv[NODE_ENV].PG_SCHEMA;
