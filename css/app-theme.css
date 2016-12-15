@@ -1,13 +1,13 @@
-html {
+/* html {
   overflow-y: -moz-scrollbars-vertical;
   overflow-y: scroll;
 }
 
 html,
 body {
-  overflow-x: hidden; /* Prevent scroll on narrow devices */
+  overflow-x: hidden; Prevent scroll on narrow devices
 }
-
+ */
 body {
     color: #1d2b3e;
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
