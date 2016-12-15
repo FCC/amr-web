@@ -1,6 +1,5 @@
 
-	//var HOST_PATH = HOST NAME + "/api/contours/"; //ST, AT, PROD
-	var HOST_PATH = "http://contours-api-node-dev.us-west-2.elasticbeanstalk.com/"; //LOCAL & DEV
+	var HOST_PATH = "https://geo.fcc.gov/api/contours/";
 
 	var map;
 	var contour_json;
@@ -1310,7 +1309,7 @@ $('#cursor-tip').css({"top": cursorY-20, "left": cursorX-10});
 
 function getAllAMCallsignList() {
 
-var url = HOST_PATH + "/allAMCallsignList";
+var url = HOST_PATH + "allAMCallsignList";
 console.log(url)
 
 $.ajax(url, {
