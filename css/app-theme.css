@@ -14,13 +14,6 @@ body {
     font-size: 14px;
 }
 
-@media screen and (max-width: 991px) {
-  /* line 10, ../scss/ui-components/_page.scss */
-  body {
-    background: #266ad0;
-  }
-}
-
 /* line 16, ../scss/ui-components/_page.scss */
 .page {
   background: #fff;
