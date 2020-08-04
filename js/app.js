@@ -44,16 +44,11 @@
 	function createMap() {
  
      L.mapbox.accessToken = 'pk.eyJ1IjoiZmNjIiwiYSI6InBiaGMyLU0ifQ.LOmVYpUCFv2yWpbvxDdQNg';
-     map = L.mapbox.map('map', 'fcc.k74ed5ge', {
-             attributionControl: true,
-             maxZoom: 19,
-			 minZoom: 3
-         })
-         .setView([40, -97], 3);
+     map = L.mapbox.map('map').setView([40, -97], 3);
 		 
-	 baseStreet = L.mapbox.tileLayer('fcc.k74ed5ge').addTo(map);
-     baseSatellite = L.mapbox.tileLayer('fcc.k74d7n0g');
-     baseTerrain = L.mapbox.tileLayer('fcc.k74cm3ol');
+	 baseStreet = L.mapbox.styleLayer('mapbox://styles/mapbox/light-v10').addTo(map);
+     baseSatellite = L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v11');
+     baseTerrain = L.mapbox.styleLayer('mapbox://styles/mapbox/outdoors-v11');
 		 
 	 L.control.scale({
          position: 'bottomleft'
