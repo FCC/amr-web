@@ -8,7 +8,8 @@
                                 <a tabindex="-1" name="skiptarget3" id="skiptarget3" class="sr-only"></a>
                                     <address class="contact-info">
                                         Federal Communications Commission
-                                        <br> 445 12th Street SW, Washington, DC 20554
+                                        <br>45 L Street NE
+                                        <br>Washington, DC 20554
                                         <br>
                                     </address>
                                     <ul class="contact-info contact-phone">
@@ -16,18 +17,18 @@
                                             <a href="tel:+18882255322" class="phone-link">Phone: 1-888-225-5322</a>
                                         </li>
                                         <li>
-                                            <a href="tel:+18888355322" class="phone-link">TTY: 1-888-835-5322</a>
+                                            <a class="phone-link" href="tel:+18444322275">ASL Video Call: 1-844-432-2275</a>
                                         </li>
                                         <li>
-                                            <a href="tel:+18444322275" class="phone-link">Videophone: 1-844-432-2275</a>
+                                            <a class="phone-link" href="https://www.fcc.gov/ASLCallPortal">ASL Video Call: Web</a>
                                         </li>
                                         <li>
                                             <a href="tel:+18884185322" class="phone-link">Fax: 1-866-418-0232</a>
                                         </li>
+                                        <li>
+                                            <a href="#" class="contact-link btn-mobile">Contact Us</a>
+                                        </li>
                                     </ul>
-                                    <a href="#" class="contact-link btn-mobile">
-                                        Contact Us
-                                    </a>
                                     <ul class="footer-links social-media-links">
                                         <li>
                                             <a title="" href="#" class="social-media twitter">Twitter    </a>
@@ -40,11 +41,6 @@
                                         <li>
                                             <a title="" href="#" class="social-media youtube">
                 Youtube
-            </a>
-                                        </li>
-                                        <li>
-                                            <a title="" href="#" class="social-media flickr">
-                Flickr
             </a>
                                         </li>
                                     </ul>
